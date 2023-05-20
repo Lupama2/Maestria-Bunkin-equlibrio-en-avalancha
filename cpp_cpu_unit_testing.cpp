@@ -23,6 +23,7 @@ int main() {
     if (error == false){
         cout << "f_maxwell en (0,1)" << endl;}
 
+
     //Test sobre condiciones iniciales
     error = false;
     double* y0 = new double[4 * N];
@@ -92,7 +93,6 @@ int main() {
     if (error == false){
         cout << "rebote_blando funciona correctamente" << endl;}
     
-
 
 
     return 0;
