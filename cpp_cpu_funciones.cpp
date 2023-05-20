@@ -4,7 +4,7 @@
 #include <random>
 //Para nros random:
 #include <cstdlib>
-#include <ctime>
+// #include <ctime>
 
 using namespace std;
 
@@ -64,11 +64,8 @@ double f_maxwell(){
     // mt19937 gen(rd());
     // maxwell_distribution<double> dist(0.0, sqrt(m / (K * T0_dim)));
     // return dist(gen) * v0_dim;
-
-
     // Función para generar un número aleatorio en un rango específico
-    std::srand(std::time(nullptr)); // Inicializar la semilla aleatoria con el tiempo actual
-    return static_cast<double>(std::rand()) / RAND_MAX;
+    return float(rand())/ float(RAND_MAX);
 
 }
 

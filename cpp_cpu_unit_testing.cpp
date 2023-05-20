@@ -1,15 +1,17 @@
 // Importo librerías
 
 #include <iostream>
+#include <fstream>
 #include <cmath>
-
-#include "funciones.h"
+#include <random>
+#include <ctime>
+#include "cpp_cpu_funciones.h"
 
 using namespace std;
 
-int main() {
+int main(){
     float error = false;
-    int N = 10; //nro de partículas a simular en cada test
+    int N = 100; //nro de partículas a simular en cada test
 
     //Test sobre f_maxwell
     for(int i = 0; i < N; i++){
@@ -23,11 +25,17 @@ int main() {
     if (error == false){
         cout << "f_maxwell en (0,1)" << endl;}
 
+    // Comportamiento de f_maxwell
+    // srand(time(nullptr)); // Inicializar la semilla aleatoria con el tiempo actual
+    ofstream f_max_file("resultados/cpp_cpu_test_f_maxwell.txt");
+    for(int i = 0; i < N; i++){
+        f_max_file << f_maxwell() << "\t";
+    }
 
     //Test sobre condiciones iniciales
     error = false;
     double* y0 = new double[4 * N];
-    condiciones_iniciales(y0);
+    condiciones_iniciales(y0, N);
     for(int n = 0; n < N; n++){
         //Controlo que estén inicialmente dentro del círculo de radio R0
         double R0 = 1.0;
@@ -61,7 +69,7 @@ int main() {
         r_vec[n] = 1.0;
         r_vec[N + n] = 0.0;
     }
-    distancia_al_origen(r_vec, d_vec);
+    distancia_al_origen(r_vec, d_vec, N);
     for(int n = 0; n < N; n++){
         if (d_vec[n] != 1.0){
             cout << "Error en distancia_al_origen" << endl;

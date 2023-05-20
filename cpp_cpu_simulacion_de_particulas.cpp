@@ -2,7 +2,12 @@
 #include <iostream>
 #include <fstream>
 #include <cmath>
-#include "funciones.h"
+#include <random>
+#include <ctime>
+#include "cpp_cpu_funciones.h"
+
+
+using namespace std;
 
 //Constantes matemáticas
 const double pi = acos(-1.0);
@@ -20,7 +25,9 @@ const double T0_dim = 300; // [K]
 // Nro de partículas
 const int N = 3; 
 
-using namespace std;
+// srand(time(nullptr)); // Inicializar la semilla aleatoria con el tiempo actual
+
+
 
 int main() {
     // Cálculo de las constantes adimensionales
