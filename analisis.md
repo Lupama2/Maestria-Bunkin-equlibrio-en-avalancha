@@ -1,3 +1,22 @@
+CUDA
+
+Code Management (CD):
+* Documentar funciones de cpp_cpu
+
+*Hacer f_maxwell() en cpp_gpu
+
+* Hacer cpp_cpu más eficiente:
+-Evitar alocar memoria de dvx_vec y dvy_vec.
+-Hacer la asignación de drdt y la cuenta de dvdt en un solo for
+-Juntar los fors de condiciones_iniciales
+-Cambiar doble a simple precisión (double -> float)
+-Cambiar los argumentos de rebote_blando para que modifique directamente los valores, para que no se pasen por copia
+-Revisar metodoVerlet para evitar declaraciones excecivas de arrays. No estoy desalocando memoria de algunos arrays
+-En avanzo_dt: Juntar la cuenta de distancia al origen adentro del for en el que se pregunta d_vec[i]>R0. Juntar este for con el siguiente. Intentar evitar declarar arrays.
+
+* Copiar cpp_cpu en cpp_gpu
+
+
 ¿Cómo paralelizar mi código?
 
 *Hacer todo el trabajo que pueda en al GPU y solo copiar a la CPU los datos cada guardo_cada
