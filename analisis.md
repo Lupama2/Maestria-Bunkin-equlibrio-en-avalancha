@@ -1,4 +1,4 @@
-CUDA
+# Análisis 
 
 Code Management (CD):
 * Documentar funciones de cpp_cpu
@@ -18,6 +18,8 @@ Code Management (CD):
 
 
 ¿Cómo paralelizar mi código?
+En 2 clases se va a explicar cómo hacer dinámica molecular con GPU. Creo que no me va a servir avanzar mucho y quizás sea mejor esperar a esa clase
+
 
 *Hacer todo el trabajo que pueda en al GPU y solo copiar a la CPU los datos cada guardo_cada
 *El nro de hilos por bloque debe ser mútliplo de 32
