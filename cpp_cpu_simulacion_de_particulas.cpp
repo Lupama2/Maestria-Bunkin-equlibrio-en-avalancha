@@ -50,7 +50,7 @@ int main() {
 
     float t = 0;
     float dt =  1e-3; //1e-8;
-    int n_pasos = 30000;
+    int n_pasos = 2*3000;
 
     int guardo_cada = 1;  // Valor deseado para guardo_cada
 

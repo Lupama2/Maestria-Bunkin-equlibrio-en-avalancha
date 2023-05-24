@@ -28,8 +28,8 @@ double generateMaxwellBoltzmann(double T) {
 
 
 * Hacer cpp_cpu más eficiente:
--Cambiar los argumentos de rebote_blando para que modifique directamente los valores, para que no se pasen por copia
 -Revisar metodoVerlet para evitar declaraciones excecivas de arrays. No estoy desalocando memoria de algunos arrays
+
 -En avanzo_dt: Juntar la cuenta de distancia al origen adentro del for en el que se pregunta d_vec[i]>R0. Juntar este for con el siguiente. Intentar evitar declarar arrays.
 
 No hago porque no sé qué efecto positivo puede llegar a tener:

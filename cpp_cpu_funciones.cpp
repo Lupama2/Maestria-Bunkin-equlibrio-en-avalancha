@@ -112,14 +112,14 @@ void distancia_al_origen(float* r_vec, float* d_vec, int N){
 
 
 
-void rebote_blando(float rx, float ry, float vx, float vy, float *result){
+void rebote_blando(float rx, float ry, float vx, float vy, float *vx_new, float* vy_new){
 
-    result[0] = rx;
-    result[1] = ry;
+    // result[0] = rx;
+    // result[1] = ry;
 
     float tita = atan2(ry, rx);
-    result[2] = -vx * cos(2 * tita) - vy * sin(2 * tita);
-    result[3] = -vx * sin(2 * tita) + vy * cos(2 * tita);
+    *vx_new = -vx * cos(2 * tita) - vy * sin(2 * tita);
+    *vy_new = -vx * sin(2 * tita) + vy * cos(2 * tita);
 
     return;
 }
@@ -129,17 +129,12 @@ void rebote_blando(float rx, float ry, float vx, float vy, float *result){
 void metodoVerlet(float* yold, float t, float dt, int N, float* ynew, float alpha) {
 
     float* dydt = new float[4 * N]; // Array para almacenar dy/dt
+    float *dydt_new = new float[4 * N]; // Array para almacenar dy/dt en el siguiente paso de tiempo
 
-    // Cálculo del vector de fuerzas
-    float* F_vec = new float[2 * N];
     f(yold , dydt, alpha, N);
-    //Copio los valores
-    for (int i = 0; i < 2 * N; ++i){
-        F_vec[i] = dydt[2 * N + i];
-    }
 
-    // Asignación del vector de posiciones
-    // float* r_vec_new = new float[2 * N];
+    //Asigno el vector de fuerzas
+    float *F_vec = &dydt[2*N] ;
 
     // Cálculo de la posición en el siguiente paso de tiempo
     for (int i = 0; i < 2 * N; i++) {
@@ -147,15 +142,8 @@ void metodoVerlet(float* yold, float t, float dt, int N, float* ynew, float alph
     }
 
     // Cálculo de la fuerza en el siguiente paso de tiempo
-    // float* ynew_partial = new float[4 * N];
-
-    // Cálculo del vector de fuerzas
-    float* F_vec_new = new float[2 * N];
-    f(ynew, dydt, alpha, N);
-    //Copio los valores
-    for (int i = 0; i < 2 * N; ++i){
-        F_vec_new[i] = dydt[2 * N + i];
-    }
+    f(ynew, dydt_new, alpha, N);
+    float *F_vec_new = &dydt_new[2*N] ;
 
     // Cálculo de la velocidad en el siguiente paso de tiempo
     // float* v_vec_new = new float[2 * N];
@@ -163,16 +151,9 @@ void metodoVerlet(float* yold, float t, float dt, int N, float* ynew, float alph
         ynew[2*N + i] = yold[2 * N + i] + 0.5 * dt * (F_vec[i] + F_vec_new[i]);
     }
 
-    //Asigno todo a ynew
-    // for(int i = 0; i < N; ++i){
-    //     ynew[2*N + i] = v_vec_new[i];
-    //     ynew[3*N + i] = v_vec_new[N + i];
-    // }
-
     // Liberación de memoria
     delete[] dydt;
-    // delete[] r_vec_new;
-    // delete[] v_vec_new;
+    delete[] dydt_new;
 }
 
 // Función avanzo_dt
@@ -211,14 +192,14 @@ void avanzo_dt(float* y, float* ynew, float t, float dt, int N, float alpha) {
             float vy = ynew[indice + 3 * N];
 
             // Rebote
-            float* result = new float[4];
-            rebote_blando(rx, ry, vx, vy, result);
+            float* result = new float[2];
+            rebote_blando(rx, ry, vx, vy, &ynew[indice + 2 * N], &ynew[indice + 3 * N]);
 
             // Añado los nuevos datos en ynew de forma ordenada
-            ynew[indice] = result[0];
-            ynew[indice + N] = result[1];
-            ynew[indice + 2 * N] = result[2];
-            ynew[indice + 3 * N] = result[3];
+            ynew[indice] = rx;
+            ynew[indice + N] = ry;
+            // ynew[indice + 2 * N] = result[0];
+            // ynew[indice + 3 * N] = result[1];
         }
     }
 
