@@ -10,17 +10,17 @@
 using namespace std;
 
 //Constantes matemáticas
-const double pi = acos(-1.0);
+const float pi = acos(-1.0);
 
 // Constantes físicas
-const double m = 9.11e-31 * 1e3; // [g]
-const double e = 1.602e-19 * (1 / 3.336641e-10); // [Fr]
-const double c = 299792458 * 1e2; // [cm/s]
-const double K = 1.380649e-23 * (1 / 1e-7); // constante de Boltzmann [ergio/K], obtenida de NIST
+const float m = 9.11e-31 * 1e3; // [g]
+const float e = 1.602e-19 * (1 / 3.336641e-10); // [Fr]
+const float c = 299792458 * 1e2; // [cm/s]
+const float K = 1.380649e-23 * (1 / 1e-7); // constante de Boltzmann [ergio/K], obtenida de NIST
 
 // Radio del círculo y velocidad inicial de la partícula
-const double R0_dim = 1e-6; // [cm]
-const double T0_dim = 300; // [K]
+const float R0_dim = 1e-6; // [cm]
+const float T0_dim = 300; // [K]
 
 // Nro de partículas
 const int N = 2; 
@@ -31,28 +31,28 @@ const int N = 2;
 
 int main() {
     // Cálculo de las constantes adimensionales
-    double v0_dim = sqrt(3 * K * T0_dim / m);
-    double alpha = pow(e, 2) / (m * R0_dim * pow(v0_dim, 2));
+    float v0_dim = sqrt(3 * K * T0_dim / m);
+    float alpha = pow(e, 2) / (m * R0_dim * pow(v0_dim, 2));
     cout << "Constante adimensional, alpha = " << alpha << endl;
 
     // Radio del círculo y velocidad inicial de la partícula adimensionales
-    double R0 = 1;
-    double v0 = 1;
+    float R0 = 1;
+    float v0 = 1;
 
     cout << "Radio y velocidad iniciales adimensionales: " << R0 << ",\t" << v0 << endl;
 
     //Declaro array de datos
-    double y[4 * N];
-    double ynew[4 * N];
+    float y[4 * N];
+    float ynew[4 * N];
 
     // Condiciones iniciales
     condiciones_iniciales(y, N);
 
-    double t = 0;
-    double dt =  1e-5; //1e-8;
+    float t = 0;
+    float dt =  1e-3; //1e-8;
     int n_pasos = 30000;
 
-    int guardo_cada = 100;  // Valor deseado para guardo_cada
+    int guardo_cada = 1;  // Valor deseado para guardo_cada
 
     ofstream pos_x_file("resultados/cpp_cpu_pos_x.txt");
     ofstream pos_y_file("resultados/cpp_cpu_pos_y.txt");
