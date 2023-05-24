@@ -97,19 +97,26 @@ void condiciones_iniciales(float* y0, int N){
     }
 }
 
-void distancia_al_origen(float* r_vec, float* d_vec, int N){
+// void distancia_al_origen(float* r_vec, float* d_vec, int N){
+//     /*
+//     Verificar su funcionamiento. TO-DO
+//     Hacer Unit testing!
+//     */
+//     float* rx = &r_vec[0];
+//     float* ry = &r_vec[N];
+
+//     for (int i = 0; i < N; ++i){
+//         d_vec[i] = sqrt(rx[i] * rx[i] + ry[i] * ry[i]);
+//     }
+// }
+
+float distancia_al_origen(float rx, float ry){
     /*
     Verificar su funcionamiento. TO-DO
     Hacer Unit testing!
     */
-    float* rx = &r_vec[0];
-    float* ry = &r_vec[N];
-
-    for (int i = 0; i < N; ++i){
-        d_vec[i] = sqrt(rx[i] * rx[i] + ry[i] * ry[i]);
-    }
+   return sqrt(rx * rx + ry * ry);
 }
-
 
 
 void rebote_blando(float rx, float ry, float vx, float vy, float *vx_new, float* vy_new){
@@ -168,42 +175,37 @@ void avanzo_dt(float* y, float* ynew, float t, float dt, int N, float alpha) {
     // Calculo la distancia de cada partícula al origen
     float* r_vec = ynew;
     float* d_vec = new float[N];
-    distancia_al_origen(r_vec, d_vec, N);
+
+    
 
     // Determino los índices en los que una partícula superó la distancia R0
-    int* indices = new int[N];
-    int numIndices = 0;
     for (int i = 0; i < N; i++) {
-        if (d_vec[i] > R0) {
-            indices[numIndices] = i;
-            numIndices++;
-        }
-    }
-
-    // Opero sobre las partículas que chocaron
-    if (numIndices > 0) {
-        for (int i = 0; i < numIndices; i++) {
-            int indice = indices[i];
+        //Opero sobre las partículas que chocaron
+        if (distancia_al_origen(r_vec[i], r_vec[i + N]) > R0) {
 
             // Obtengo las variables correspondientes
-            float rx = ynew[indice];
-            float ry = ynew[indice + N];
-            float vx = ynew[indice + 2 * N];
-            float vy = ynew[indice + 3 * N];
+            float rx = ynew[i];
+            float ry = ynew[i + N];
+            float vx = ynew[i + 2 * N];
+            float vy = ynew[i + 3 * N];
 
             // Rebote
             float* result = new float[2];
-            rebote_blando(rx, ry, vx, vy, &ynew[indice + 2 * N], &ynew[indice + 3 * N]);
+            rebote_blando(rx, ry, vx, vy, &ynew[i + 2 * N], &ynew[i + 3 * N]);
 
             // Añado los nuevos datos en ynew de forma ordenada
-            ynew[indice] = rx;
-            ynew[indice + N] = ry;
+            ynew[i] = rx;
+            ynew[i + N] = ry;
             // ynew[indice + 2 * N] = result[0];
             // ynew[indice + 3 * N] = result[1];
+
         }
+
+
     }
+
 
     // Liberación de memoria
     delete[] d_vec;
-    delete[] indices;
+
 }
