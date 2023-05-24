@@ -23,7 +23,7 @@ const double R0_dim = 1e-6; // [cm]
 const double T0_dim = 300; // [K]
 
 // Nro de partículas
-const int N = 3; 
+const int N = 2; 
 
 // srand(time(nullptr)); // Inicializar la semilla aleatoria con el tiempo actual
 
@@ -49,16 +49,16 @@ int main() {
     condiciones_iniciales(y, N);
 
     double t = 0;
-    double dt =  1e-2; //1e-8;
-    int n_pasos = 300;
+    double dt =  1e-5; //1e-8;
+    int n_pasos = 30000;
 
-    int guardo_cada = 1;  // Valor deseado para guardo_cada
+    int guardo_cada = 100;  // Valor deseado para guardo_cada
 
-    ofstream pos_x_file("resultados/cpp_pos_x.txt");
-    ofstream pos_y_file("resultados/cpp_pos_y.txt");
-    ofstream vel_x_file("resultados/cpp_vel_x.txt");
-    ofstream vel_y_file("resultados/cpp_vel_y.txt");
-    ofstream t_file("resultados/cpp_t.txt");
+    ofstream pos_x_file("resultados/cpp_cpu_pos_x.txt");
+    ofstream pos_y_file("resultados/cpp_cpu_pos_y.txt");
+    ofstream vel_x_file("resultados/cpp_cpu_vel_x.txt");
+    ofstream vel_y_file("resultados/cpp_cpu_vel_y.txt");
+    ofstream t_file("resultados/cpp_cpu_t.txt");
     
     cout << "Archivos creados correctamente" << endl;
 
@@ -98,7 +98,7 @@ int main() {
     vel_y_file.close();
 
     //Guardo condiciones iniciales
-    ofstream cond_ini_file("resultados/cpp_cond_ini.txt");
+    ofstream cond_ini_file("resultados/cpp_cpu_cond_ini.txt");
     cond_ini_file << R0 << " " << v0 << " " << R0_dim << " " << v0_dim;
 
 
