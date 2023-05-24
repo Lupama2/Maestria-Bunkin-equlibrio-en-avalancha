@@ -28,17 +28,14 @@ double generateMaxwellBoltzmann(double T) {
 
 
 * Hacer cpp_cpu más eficiente:
--En avanzo_dt: Juntar la cuenta de distancia al origen adentro del for en el que se pregunta d_vec[i]>R0. Juntar este for con el siguiente. Intentar evitar declarar arrays.
 
 No hago porque no sé qué efecto positivo puede llegar a tener:
 -Evitar alocar memoria de dvx_vec y dvy_vec.
 
 * Copiar cpp_cpu en cpp_gpu
 
-
 ¿Cómo paralelizar mi código?
 En 2 clases se va a explicar cómo hacer dinámica molecular con GPU. Creo que no me va a servir avanzar mucho y quizás sea mejor esperar a esa clase
-
 
 *Hacer todo el trabajo que pueda en al GPU y solo copiar a la CPU los datos cada guardo_cada
 *El nro de hilos por bloque debe ser mútliplo de 32
