@@ -12,6 +12,20 @@ using namespace std;
 const double pi = acos(-1.0);
 
 void f(double* y, double* dydt, double alpha, int N) {
+    /*
+    Evaluación del miembro de la derecha del sistema de ecuaciones diferenciales del tipo dy_vec/dt = f(y_vec, t)
+    Parameters
+    ----------
+    y_vec (dim 4N no modificado): vector de variables formado por [rx_vec, ry_vec, vx_vec, vy_vec] (en ese orden). Estos son:
+        rx_vec (dim N): vector de posiciones en x de las partículas
+        ry_vec (dim N): vector de posiciones en y de las partículas
+        vx_vec (dim N): vector de velocidades en x de las partículas
+        vy_vec (dim N): vector de velocidades en y de las partículas
+    dydt (dim 4N modificado): vector de la derivada de variables.
+    alpha: constante adimensional
+    N: nro de partículas
+   
+    */
     double* rx_vec = y;
     double* ry_vec = &y[N];
     double* vx_vec = &y[2 * N];

@@ -3,7 +3,29 @@
 Code Management (CD):
 * Documentar funciones de cpp_cpu
 
+
 *Hacer f_maxwell() en cpp_gpu
+
+#include <random>
+#include <cmath>
+
+double generateMaxwellBoltzmann(double T) {
+    // Crear generadores de números aleatorios
+    std::default_random_engine generator;
+    std::uniform_real_distribution<double> distribution(0.0, 1.0);
+
+    // Generar tres números aleatorios con una distribución normal usando la transformación de Box-Muller
+    double x1 = sqrt(-2.0 * log(distribution(generator))) * cos(2.0 * M_PI * distribution(generator));
+    double x2 = sqrt(-2.0 * log(distribution(generator))) * sin(2.0 * M_PI * distribution(generator));
+    double x3 = sqrt(-2.0 * log(distribution(generator))) * cos(2.0 * M_PI * distribution(generator));
+
+    // Calcular la velocidad en función de la temperatura T
+    double velocity = sqrt(x1 * x1 + x2 * x2 + x3 * x3) * sqrt(T);
+
+    return velocity;
+}
+
+
 
 * Hacer cpp_cpu más eficiente:
 -Evitar alocar memoria de dvx_vec y dvy_vec.
