@@ -1,4 +1,11 @@
 
+/*
+Para compilar
+g++ -O3 cpp_cpu_funciones.cpp cpp_cpu_simulacion_de_particulas.cpp -o cpp_cpu_simulacion_de_particulas
+
+
+*/
+
 #include <iostream>
 #include <fstream>
 #include <cmath>

@@ -1,10 +1,19 @@
 
+/*
+Para compilar
+g++ -O3 cpp_gpu_funciones.cpp cpp_gpu_simulacion_de_particulas.cpp -o cpp_gpu_simulacion_de_particulas
+
+
+*/
+
 #include <iostream>
 #include <fstream>
 #include <cmath>
 #include <random>
 #include <ctime>
 #include "cpp_cpu_funciones.h"
+#include <thrust/device_vector.h>
+#include <thrust/transform.h>
 
 
 using namespace std;
