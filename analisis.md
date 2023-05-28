@@ -53,6 +53,18 @@ double generateMaxwellBoltzmann(double T) {
 
 -Instalar CUDA toolkint. Correr un programa de ejemplo de thrust. Pedírselo a ChatGPT
 
+GPT4 no puede hacerme todo, pero sí darme una mano. Le di el siguiente mensaje, no me supo paralelizar todo el código:
+Estoy simulando un gas de electrones interactuantes contenidos en un círculo de radio constante en el tiempo. Los electrones tienen colisiones elásticas con la pared. Los electrones interactúan entre sí mediante la fuerza de coulomb. Tengo un código en C++ que calcula la evolución del gas de N electrones considerándolos como partículas individuales. Quiero paralelizarlo usando thrust. ¿Me puedes dar una mano? El código es relativamente largo
+
+
+-Describir cómo quiero paralelizar mi código. Rearmar el código en serie con el paradigma en paralelo. Así será más fácil usar thrust luego (y GPT4).
+. condiciones_iniciales implica llenar un vector. Creo que se puede hacer enteramente en paralelo
+. El cálculo de f en py era llenar una matriz y luego hacer una reducción. Creo que tmb se puede paralelizar bajo ese concepto
+. metodoVerlet se podría hacer enteramente en device. Los fors loops de asignación de ynew se podrían intercambiar por transform
+. En avanzo_dt, el for se puede reemplazar por un kernel. Para hacer esto debería sacar la función rebote_blando.
+
+
+
 ¿Cómo paralelizar mi código?
 En 2 clases se va a explicar cómo hacer dinámica molecular con GPU. Creo que no me va a servir avanzar mucho y quizás sea mejor esperar a esa clase
 
