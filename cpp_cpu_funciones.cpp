@@ -65,6 +65,8 @@ float f_maxwell_pura() {
     Los nros random de esta distribución siguen la distribución de maxwell-blotzmann
 
     f(v) = np.sqrt(2/pi)*v**2*exp(-v**2/2)
+
+    Aú
     */
 
 
@@ -84,6 +86,10 @@ float f_maxwell_pura() {
 }
 
 float f_maxwell_adim(){
+    /*
+    Falta corregir esta función
+    
+    */
     /*
     Rehacer. TO-DO.
     Por cómo se usa abajo, sólo genera 1 nro random

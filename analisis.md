@@ -10,6 +10,15 @@ Code Management (CD):
 #include <cmath>
 
 
+Si cada paso es independiente de los demás, entonces puedo hacer estadística del mismo N usando los pasos de tiempo
+
+En la primer versión cada iteración dura en torno a 3 s, mientras que con la segunda versión cada iteración dura en torno a 0.1 s. Luego, con la primer paralelización de CUDA tarda 0.01 s y con la segunda paralelización (usando memoria compartida) se llegó a 0.007 segundos.
+
+También se calcularon el nro de interacciones por segundo que se pueden calcular
+
+La charla tiene que ser de 15'. Mostrar motivación, cómo paralelizamos el código. Ver cómo escalea. Va a haber 4 fechas para presentar del 9 al 30 de junio. 
+
+
 
 ¿Qué falta hacer?
 -Verificar el funcionamiento de f_maxwell(): generar N nros con la distribución uniforme y ver que lo sea. generar N nros con la distribución de maxwell y ver que lo sea
