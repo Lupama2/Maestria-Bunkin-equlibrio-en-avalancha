@@ -58,7 +58,32 @@ void f(float* y, float* dydt, float alpha, int N) {
 
 
 
-float f_maxwell(){
+
+
+float f_maxwell_pura() {
+    /*
+    Los nros random de esta distribución siguen la distribución de maxwell-blotzmann
+
+    f(v) = np.sqrt(2/pi)*v**2*exp(-v**2/2)
+    */
+
+
+    // Crear generadores de números aleatorios con distribución normal
+    static std::default_random_engine generator;
+    static std::normal_distribution<float> distribution(0.0, 1.0);
+
+    // Generar tres números aleatorios con una distribución normal usando la transformación de Box-Muller
+    float x1 = distribution(generator);
+    float x2 = distribution(generator);
+    float x3 = distribution(generator);
+
+    // Calcular la velocidad en función de la temperatura T
+    float velocity = sqrt(x1 * x1 + x2 * x2 + x3 * x3);
+
+    return velocity;
+}
+
+float f_maxwell_adim(){
     /*
     Rehacer. TO-DO.
     Por cómo se usa abajo, sólo genera 1 nro random
@@ -68,9 +93,11 @@ float f_maxwell(){
     // maxwell_distribution<float> dist(0.0, sqrt(m / (K * T0_dim)));
     // return dist(gen) * v0_dim;
     // Función para generar un número aleatorio en un rango específico
-    return float(rand())/ float(RAND_MAX);
 
+    return f_maxwell_pura()*sqrt(3);
 }
+
+
 
 void condiciones_iniciales(float* y0, int N){
     /*
@@ -90,7 +117,7 @@ void condiciones_iniciales(float* y0, int N){
         y0[i] = r0 * cos(tita_r0); // = rx0_vec[i]
         y0[N + i] = r0 * sin(tita_r0); // = ry0_vec[i] 
 
-        float v0 = f_maxwell();
+        float v0 = f_maxwell_adim();
         float tita_v0 = angle_dist(gen);
         y0[2 * N + i] = v0 * cos(tita_v0); // = vx0_vec[i]
         y0[3 * N + i] = v0 * sin(tita_v0); // = vy0_vec[i]

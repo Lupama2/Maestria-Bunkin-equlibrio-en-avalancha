@@ -9,25 +9,13 @@ Code Management (CD):
 #include <random>
 #include <cmath>
 
-double generateMaxwellBoltzmann(double T) {
-    // Crear generadores de números aleatorios
-    std::default_random_engine generator;
-    std::uniform_real_distribution<double> distribution(0.0, 1.0);
-
-    // Generar tres números aleatorios con una distribución normal usando la transformación de Box-Muller
-    double x1 = sqrt(-2.0 * log(distribution(generator))) * cos(2.0 * M_PI * distribution(generator));
-    double x2 = sqrt(-2.0 * log(distribution(generator))) * sin(2.0 * M_PI * distribution(generator));
-    double x3 = sqrt(-2.0 * log(distribution(generator))) * cos(2.0 * M_PI * distribution(generator));
-
-    // Calcular la velocidad en función de la temperatura T
-    double velocity = sqrt(x1 * x1 + x2 * x2 + x3 * x3) * sqrt(T);
-
-    return velocity;
-}
 
 
 ¿Qué falta hacer?
 -Verificar el funcionamiento de f_maxwell(): generar N nros con la distribución uniforme y ver que lo sea. generar N nros con la distribución de maxwell y ver que lo sea
+-Intentar correr el código de python y de c++ en el cluster
+
+
 -Determinar qué N y dt analizar en el caso de python (el programa más exigente). Estos serán los que analizaré en los demás casos. No le debe tomar más de 20'. El dt tiene que ser suficientemente chico para que a tiempos largos no diverja el programa. PERO solo se ejecutará un único paso de tiempo en la versión final.
 -¿Podría recibir N y dt desde la cmd como los cpp de clases? En caso negativo, reducir el programa de python a una función, de modo de poder poner de input varios N y dt, para luego correr en el cluster.
 -Incluir la repetición M de cada caso para tener estadística

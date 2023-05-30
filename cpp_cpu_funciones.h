@@ -1,6 +1,7 @@
 
 void f(float* y, float* dydt, float alpha, int N);
-float f_maxwell();
+float f_maxwell_adim();
+float f_maxwell_pura();
 void condiciones_iniciales(float* y0, int N);
 void distancia_al_origen(float* r_vec, float* d_vec, int N);
 void rebote_blando(float rx, float ry, float vx, float vy, float *result);
