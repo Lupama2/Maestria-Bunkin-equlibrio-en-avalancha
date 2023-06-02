@@ -81,17 +81,25 @@ int main(const int argc, const char** argv) {
   float *buf = (float*)malloc(bytes);
   Particula *p = (Particula*)buf;
   
-  float *buf_dt = (float*)malloc(bytes);
-  Particula *dpdt = (Particula*)buf_dt;
+  float *buf_dt1 = (float*)malloc(bytes);
+  Particula *dpdt1 = (Particula*)buf_dt1;
+
+  float *buf_dt2 = (float*)malloc(bytes);
+  Particula *dpdt2 = (Particula*)buf_dt2;
 
   //Aloco memoria en device
   float *d_buf;
   cudaMalloc(&d_buf, bytes);
   Particula *d_p = (Particula*)d_buf;
 
-  float *d_buf_dt;
-  cudaMalloc(&d_buf_dt, bytes);
-  Particula *d_dpdt = (Particula*)d_buf_dt;
+  float *d_buf_dt1;
+  cudaMalloc(&d_buf_dt1, bytes);
+  Particula *d_dpdt1 = (Particula*)d_buf_dt1;
+
+  float *d_buf_dt2;
+  cudaMalloc(&d_buf_dt2, bytes);
+  Particula *d_dpdt2 = (Particula*)d_buf_dt2;
+
 
   randomizeBodies(buf, 4*N); // Init pos / vel data
 
@@ -103,22 +111,58 @@ int main(const int argc, const char** argv) {
     // En cada loop de tiempo se copian los datos a la GPU, se paraleliza en GPU y luego se vuelven a copiar los datos a CPU  
     StartTimer();
 
+
+    /**********************************************************/
+    //Método de Verlet
+    /**********************************************************/
+
     cudaMemcpy(d_buf, buf, bytes, cudaMemcpyHostToDevice);
     // cudaMemcpy(d_buf_dt, buf_dt, bytes, cudaMemcpyHostToDevice);
 
-    bodyForce<<<nBlocks, BLOCK_SIZE>>>(d_p, d_dpdt, dt, N, alpha); // compute interbody forces 
+    bodyForce<<<nBlocks, BLOCK_SIZE>>>(d_p, d_dpdt1, dt, N, alpha); // compute interbody forces 
     
-  
     cudaMemcpy(buf, d_buf, bytes, cudaMemcpyDeviceToHost);
-    cudaMemcpy(buf_dt, d_buf_dt, bytes, cudaMemcpyDeviceToHost);
+    cudaMemcpy(buf_dt1, d_buf_dt1, bytes, cudaMemcpyDeviceToHost);
 
-    //Método Leap-Frog
-    for (int i = 0 ; i < N; i++) { // integrate position
-      p[i].vx += dt*dpdt[i].vx; p[i].vy += dt*dpdt[i].vy;
-      p[i].x += dpdt[i].x*dt;
-      p[i].y += dpdt[i].y*dt;
+    for (int i = 0 ; i < N; i++) { // position integration
+      p[i].x = p[i].x + p[i].vx * dt + 0.5 * dt * dt * dpdt1[i].vx;
+      p[i].y = p[i].y + p[i].vy * dt + 0.5 * dt * dt * dpdt1[i].vy;
     }
-    //Método de Verlet
+
+    // Cálculo de la fuerza en el siguiente paso de tiempo
+    cudaMemcpy(d_buf, buf, bytes, cudaMemcpyHostToDevice);
+
+    bodyForce<<<nBlocks, BLOCK_SIZE>>>(d_p, d_dpdt2, dt, N, alpha); // compute interbody forces 
+
+    cudaMemcpy(buf, d_buf, bytes, cudaMemcpyDeviceToHost);
+    cudaMemcpy(buf_dt2, d_buf_dt2, bytes, cudaMemcpyDeviceToHost);
+
+    for (int i = 0 ; i < N; i++) { // velocity integration
+    // ynew[2*N + i] = yold[2 * N + i] + 0.5 * dt * (F_vec[i] + F_vec_new[i]);
+      p[i].vx = p[i].vx + 0.5 * dt *( dpdt1[i].vx + dpdt2[i].vx);
+      p[i].vy = p[i].vy + 0.5 * dt *( dpdt1[i].vy + dpdt2[i].vy);
+    }
+
+    cudaMemcpy(buf, d_buf, bytes, cudaMemcpyDeviceToHost);
+
+    /**********************************************************/
+    //Método Leap-Frog
+    /**********************************************************/
+
+    // cudaMemcpy(d_buf, buf, bytes, cudaMemcpyHostToDevice);
+    // // cudaMemcpy(d_buf_dt, buf_dt, bytes, cudaMemcpyHostToDevice);
+
+    // bodyForce<<<nBlocks, BLOCK_SIZE>>>(d_p, d_dpdt, dt, N, alpha); // compute interbody forces 
+  
+    // cudaMemcpy(buf, d_buf, bytes, cudaMemcpyDeviceToHost);
+    // cudaMemcpy(buf_dt, d_buf_dt, bytes, cudaMemcpyDeviceToHost);
+
+
+    // for (int i = 0 ; i < N; i++) { // integrate position
+    //   p[i].vx += dt*dpdt[i].vx; p[i].vy += dt*dpdt[i].vy;
+    //   p[i].x += dpdt[i].x*dt;
+    //   p[i].y += dpdt[i].y*dt;
+    // }
 
 
 
