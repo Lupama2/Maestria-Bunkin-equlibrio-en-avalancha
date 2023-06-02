@@ -76,7 +76,8 @@ void bodyForce(Particula *p, Particula *dpdt, float dt, int n, float alpha) {
 }
 
 int main(const int argc, const char** argv) {
-  int N = 30000; // Nro de partículas
+  // int N = 30000; // Nro de partículas del código de ejemplo
+  int N = 3;
   if (argc > 1) N = atoi(argv[1]);
 
   // Cálculo de las constantes adimensionales
@@ -92,7 +93,8 @@ int main(const int argc, const char** argv) {
   
 
   const float dt = 0.01f; // time step
-  const int nIters = 10;  // simulation iterations
+  // const int nIters = 10;  // simulation iterations en el ejemplo
+  const int n_pasos = 2*3000;
   float t = 0.;
 
   //Defino archivos para guardar los resultados
@@ -138,7 +140,7 @@ int main(const int argc, const char** argv) {
   int nBlocks = (N + BLOCK_SIZE - 1) / BLOCK_SIZE;
   double totalTime = 0.0; 
 
-  for (int iter = 1; iter <= nIters; iter++) {
+  for (int iter = 1; iter <= n_pasos; iter++) {
     // En cada loop de tiempo se copian los datos a la GPU, se paraleliza en GPU y luego se vuelven a copiar los datos a CPU  
     StartTimer();
 
@@ -247,13 +249,13 @@ int main(const int argc, const char** argv) {
   cond_ini_file << R0 << " " << v0 << " " << R0_dim << " " << v0_dim;
 
 
-  double avgTime = totalTime / (double)(nIters-1); 
+  double avgTime = totalTime / (double)(n_pasos-1); 
 
   #ifdef SHMOO
     printf("%d, %0.3f\n", N, 1e-9 * N * N / avgTime);
   #else
     //printf("Average rate for iterations 2 through %d: %.3f +- %.3f steps per second.\n",
-    //       nIters, rate);
+    //       n_pasos, rate);
     printf("%d Bodies: average %0.3f Billion Interactions / second\n", N, 1e-9 * N * N / avgTime);
   #endif
     free(buf);
