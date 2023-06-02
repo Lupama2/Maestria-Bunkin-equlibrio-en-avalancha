@@ -97,6 +97,25 @@ void velocity_integration(Particula *p, Particula *dpdt1, Particula *dpdt2 ,floa
   }
 }
 
+__global__
+void rebote_blando(Particula *p, int n, float R0) {
+  int i = blockDim.x * blockIdx.x + threadIdx.x;
+  if (i < n) {
+      //Opero sobre las partículas que chocaron
+      if (sqrt(p[i].x * p[i].x + p[i].y * p[i].y) > R0) {
+
+        // Obtengo las variables correspondientes
+        float vx = p[i].vx;
+        float vy = p[i].vy;
+
+        float tita = atan2(p[i].y, p[i].x);
+        p[i].vx = -vx * cos(2 * tita) - vy * sin(2 * tita);
+        p[i].vy = -vx * sin(2 * tita) + vy * cos(2 * tita);
+      }
+  }
+}
+
+
 int main(const int argc, const char** argv) {
   // int N = 30000; // Nro de partículas del código de ejemplo
   int N = 10;
@@ -181,12 +200,13 @@ int main(const int argc, const char** argv) {
     // cudaMemcpy(d_buf_dt, buf_dt, bytes, cudaMemcpyHostToDevice);
 
     bodyForce<<<nBlocks, BLOCK_SIZE>>>(d_p, d_dpdt1, dt, N, alpha); // compute interbody forces 
-    // cudaDeviceSynchronize();    
+    cudaDeviceSynchronize();    
 
 
     // cudaMemcpy(buf_dt1, d_buf_dt1, bytes, cudaMemcpyDeviceToHost);
 
     position_integration<<<nBlocks, BLOCK_SIZE>>>(d_p, d_dpdt1, dt, N);
+    cudaDeviceSynchronize();  
     // for (int i = 0 ; i < N; i++) { // position integration
     //   p[i].x = p[i].x + p[i].vx * dt + 0.5 * dt * dt * dpdt1[i].vx;
     //   p[i].y = p[i].y + p[i].vy * dt + 0.5 * dt * dt * dpdt1[i].vy;
@@ -196,56 +216,24 @@ int main(const int argc, const char** argv) {
     // cudaMemcpy(d_buf, buf, bytes, cudaMemcpyHostToDevice);
 
     bodyForce<<<nBlocks, BLOCK_SIZE>>>(d_p, d_dpdt2, dt, N, alpha); // compute interbody forces 
+    cudaDeviceSynchronize();  
 
     // cudaMemcpy(buf_dt2, d_buf_dt2, bytes, cudaMemcpyDeviceToHost);
 
     velocity_integration<<<nBlocks, BLOCK_SIZE>>>(d_p, d_dpdt1, d_dpdt2 , dt, N);
+    cudaDeviceSynchronize();  
     // for (int i = 0 ; i < N; i++) { // velocity integration
     // // ynew[2*N + i] = yold[2 * N + i] + 0.5 * dt * (F_vec[i] + F_vec_new[i]);
     //   p[i].vx = p[i].vx + 0.5 * dt *( dpdt1[i].vx + dpdt2[i].vx);
     //   p[i].vy = p[i].vy + 0.5 * dt *( dpdt1[i].vy + dpdt2[i].vy);
     // }
 
-    //En caso de usar position_integration y velocity_integration
-    cudaMemcpy(buf, d_buf, bytes, cudaMemcpyDeviceToHost);
-
-    /**********************************************************/
-    //Método Leap-Frog
-    /**********************************************************/
-
-    // cudaMemcpy(d_buf, buf, bytes, cudaMemcpyHostToDevice);
-    // // cudaMemcpy(d_buf_dt, buf_dt, bytes, cudaMemcpyHostToDevice);
-
-    // bodyForce<<<nBlocks, BLOCK_SIZE>>>(d_p, d_dpdt1, dt, N, alpha); // compute interbody forces 
-  
-    // cudaMemcpy(buf, d_buf, bytes, cudaMemcpyDeviceToHost);
-    // cudaMemcpy(buf_dt1, d_buf_dt1, bytes, cudaMemcpyDeviceToHost);
-
-
-    // for (int i = 0 ; i < N; i++) { // integrate position
-    //   p[i].vx += dt*dpdt1[i].vx; p[i].vy += dt*dpdt1[i].vy;
-    //   p[i].x += dpdt1[i].x*dt; p[i].y += dpdt1[i].y*dt;
-    // }
 
     /**********************************************************/
     //Rebote
     /**********************************************************/
-    for (int i = 0; i < N; i++) {
-      //Opero sobre las partículas que chocaron
-      if (sqrt(p[i].x * p[i].x + p[i].y * p[i].y) > R0) {
-
-        // Obtengo las variables correspondientes
-        float vx = p[i].vx;
-        float vy = p[i].vy;
-
-        float tita = atan2(p[i].y, p[i].x);
-        p[i].vx = -vx * cos(2 * tita) - vy * sin(2 * tita);
-        p[i].vy = -vx * sin(2 * tita) + vy * cos(2 * tita);
-
-      }
-
-    }
-
+    rebote_blando<<<nBlocks, BLOCK_SIZE>>>(d_p, N, R0); 
+    cudaDeviceSynchronize();  
 
     /**********************************************************/
     //Guardo datos
@@ -257,6 +245,8 @@ int main(const int argc, const char** argv) {
     //   cout << "t = " << t << "\tEvolucion al " << float(i) / float(n_pasos) * 100. << "%\n";
     // }
     if (iter % guardo_cada == 0) {
+      //Copio de Device a Host
+      cudaMemcpy(buf, d_buf, bytes, cudaMemcpyDeviceToHost);
       for (int i = 0; i < N; i++) {
         pos_x_file << p[i].x << " ";
         pos_y_file << p[i].y << " ";
