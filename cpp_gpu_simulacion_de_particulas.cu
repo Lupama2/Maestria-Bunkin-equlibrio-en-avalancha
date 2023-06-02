@@ -5,6 +5,14 @@
 #include <stdlib.h>
 #include "timer.h"
 
+// #include <iostream>
+// #include <fstream>
+// #include <cmath>
+// #include <random>
+// #include <ctime>
+// #include "cpp_cpu_funciones.h"
+
+
 using namespace std;
 
 #define BLOCK_SIZE 256
@@ -73,7 +81,18 @@ int main(const int argc, const char** argv) {
 
   const float dt = 0.01f; // time step
   const int nIters = 10;  // simulation iterations
+  float t = 0.;
 
+  //Defino archivos para guardar los resultados
+  int guardo_cada = 1;  // Valor deseado para guardo_cada
+
+  ofstream pos_x_file("resultados/cpp_gpu_pos_x.txt");
+  ofstream pos_y_file("resultados/cpp_gpu_pos_y.txt");
+  ofstream vel_x_file("resultados/cpp_gpu_vel_x.txt");
+  ofstream vel_y_file("resultados/cpp_gpu_vel_y.txt");
+  ofstream t_file("resultados/cpp_gpu_t.txt");
+
+  cout << "Archivos creados correctamente" << endl;
 
   //Aloco memoria en host
   int bytes = N*sizeof(Particula);
@@ -165,24 +184,67 @@ int main(const int argc, const char** argv) {
     // }
 
 
+    /**********************************************************/
+    //Guardo datos
+    /**********************************************************/
+    t = t + dt;
+
+
+    // if (iter % guardo_cada == 0) {
+    //   cout << "t = " << t << "\tEvolucion al " << float(i) / float(n_pasos) * 100. << "%\n";
+    // }
+    if (iter % guardo_cada == 0) {
+      for (int i = 0; i < N; i++) {
+        pos_x_file << p[i].x << " ";
+        pos_y_file << p[i].y << " ";
+        vel_x_file << p[i].vx << " ";
+        vel_y_file << p[i].vy << " ";
+      }
+    pos_x_file << "\n";
+    pos_y_file << "\n";
+    vel_x_file << "\n";
+    vel_y_file << "\n";
+    t_file << t << "\n";
+    }
+
+
+    /**********************************************************/
+    //Calculo tiempos
+    /**********************************************************/
 
     const double tElapsed = GetTimer() / 1000.0;
     if (iter > 1) { // First iter is warm up
-      totalTime += tElapsed; 
+        totalTime += tElapsed; 
     }
-#ifndef SHMOO
-    printf("Iteration %d: %.3f seconds\n", iter, tElapsed);
-#endif
+
+  
+
+    #ifndef SHMOO
+        printf("Iteration %d: %.3f seconds\n", iter, tElapsed);
+    #endif
   }
+
+  //Cierro archivos
+  pos_x_file.close();
+  pos_y_file.close();
+  vel_x_file.close();
+  vel_y_file.close();
+
+  //Guardo condiciones iniciales
+  ofstream cond_ini_file("resultados/cpp_gpu_cond_ini.txt");
+  cond_ini_file << R0 << " " << v0 << " " << R0_dim << " " << v0_dim;
+
+
   double avgTime = totalTime / (double)(nIters-1); 
 
-#ifdef SHMOO
-  printf("%d, %0.3f\n", N, 1e-9 * N * N / avgTime);
-#else
-  //printf("Average rate for iterations 2 through %d: %.3f +- %.3f steps per second.\n",
-  //       nIters, rate);
-  printf("%d Bodies: average %0.3f Billion Interactions / second\n", N, 1e-9 * N * N / avgTime);
-#endif
-  free(buf);
-  cudaFree(d_buf);
+  #ifdef SHMOO
+    printf("%d, %0.3f\n", N, 1e-9 * N * N / avgTime);
+  #else
+    //printf("Average rate for iterations 2 through %d: %.3f +- %.3f steps per second.\n",
+    //       nIters, rate);
+    printf("%d Bodies: average %0.3f Billion Interactions / second\n", N, 1e-9 * N * N / avgTime);
+  #endif
+    free(buf);
+    cudaFree(d_buf);
+
 }
