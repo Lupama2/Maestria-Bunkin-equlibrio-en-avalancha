@@ -35,9 +35,21 @@ const float T0_dim = 300; // [K]
 
 
 
-void randomizeBodies(float *data, int n) {
-  for (int i = 0; i < n; i++) {
-    data[i] = 2.0f * (rand() / (float)RAND_MAX) - 1.0f;
+void condiciones_iniciales(Particula *p0, int N) {
+
+  //Lo siguiente es válido por cómo fue definida la adimnesionalización
+  float R0 = 1.0;
+
+  for (int i = 0; i < N; ++i){
+    float r0 = R0 * (rand() / (float)RAND_MAX);
+    float tita_r0 = (rand() / (float)RAND_MAX);
+    p0[i].x = r0 * cos(tita_r0); // = rx0_vec[i]
+    p0[i].y = r0 * sin(tita_r0); // = ry0_vec[i] 
+
+    float v0 = (rand() / (float)RAND_MAX); //Por ahora va a ser random uniforme. TO-DO
+    float tita_v0 = (rand() / (float)RAND_MAX);
+    p0[i].vx = v0 * cos(tita_v0); // = vx0_vec[i]
+    p0[i].vy = v0 * sin(tita_v0); // = vy0_vec[i]
   }
 }
 
@@ -120,7 +132,7 @@ int main(const int argc, const char** argv) {
   Particula *d_dpdt2 = (Particula*)d_buf_dt2;
 
 
-  randomizeBodies(buf, 4*N); // Init pos / vel data
+  condiciones_iniciales(p, N); // Init pos / vel data
 
 
   int nBlocks = (N + BLOCK_SIZE - 1) / BLOCK_SIZE;
