@@ -16,7 +16,7 @@
 using namespace std;
 
 #define BLOCK_SIZE 256
-#define SOFTENING 1e-9f
+#define SOFTENING 1e-14f
 
 typedef struct { float x, y, vx, vy; } Particula;
 
@@ -60,8 +60,8 @@ void bodyForce(Particula *p, Particula *dpdt, float dt, int n, float alpha) {
     float Fx = 0.0f; float Fy = 0.0f;
 
     for (int j = 0; j < n; j++) {
-      float dx = p[j].x - p[i].x; //o al revés? TO-DO
-      float dy = p[j].y - p[i].y;
+      float dx = p[i].x - p[j].x;
+      float dy = p[i].y - p[j].y;
       float r2 = dx*dx + dy*dy + SOFTENING;
       float inv_r = rsqrtf(r2);
       float inv_r3 = inv_r * inv_r * inv_r;
@@ -77,7 +77,7 @@ void bodyForce(Particula *p, Particula *dpdt, float dt, int n, float alpha) {
 
 int main(const int argc, const char** argv) {
   // int N = 30000; // Nro de partículas del código de ejemplo
-  int N = 3;
+  int N = 10;
   if (argc > 1) N = atoi(argv[1]);
 
   // Cálculo de las constantes adimensionales
@@ -92,7 +92,7 @@ int main(const int argc, const char** argv) {
   cout << "Radio y velocidad iniciales adimensionales: " << R0 << ",\t" << v0 << endl;
   
 
-  const float dt = 0.01f; // time step
+  const float dt = 1e-3; //1e-8;; // time step
   // const int nIters = 10;  // simulation iterations en el ejemplo
   const int n_pasos = 2*3000;
   float t = 0.;
@@ -136,6 +136,12 @@ int main(const int argc, const char** argv) {
 
   condiciones_iniciales(p, N); // Init pos / vel data
 
+  // Verifico si la fuerza es atractiva o repulsiva
+  // p[0].x = 0.1; p[1].x = -0.1;
+  // p[0].y = 0.; p[1].y = 0.;
+  // p[0].vx = 0.; p[1].vx = 0.;
+  // p[0].vy = 0.; p[1].vy = 0.;
+
 
   int nBlocks = (N + BLOCK_SIZE - 1) / BLOCK_SIZE;
   double totalTime = 0.0; 
@@ -153,8 +159,9 @@ int main(const int argc, const char** argv) {
     // cudaMemcpy(d_buf_dt, buf_dt, bytes, cudaMemcpyHostToDevice);
 
     bodyForce<<<nBlocks, BLOCK_SIZE>>>(d_p, d_dpdt1, dt, N, alpha); // compute interbody forces 
-    
-    cudaMemcpy(buf, d_buf, bytes, cudaMemcpyDeviceToHost);
+    // cudaDeviceSynchronize();    
+
+    // cudaMemcpy(buf, d_buf, bytes, cudaMemcpyDeviceToHost);
     cudaMemcpy(buf_dt1, d_buf_dt1, bytes, cudaMemcpyDeviceToHost);
 
     for (int i = 0 ; i < N; i++) { // position integration
@@ -167,7 +174,7 @@ int main(const int argc, const char** argv) {
 
     bodyForce<<<nBlocks, BLOCK_SIZE>>>(d_p, d_dpdt2, dt, N, alpha); // compute interbody forces 
 
-    cudaMemcpy(buf, d_buf, bytes, cudaMemcpyDeviceToHost);
+    // cudaMemcpy(buf, d_buf, bytes, cudaMemcpyDeviceToHost);
     cudaMemcpy(buf_dt2, d_buf_dt2, bytes, cudaMemcpyDeviceToHost);
 
     for (int i = 0 ; i < N; i++) { // velocity integration
@@ -176,7 +183,7 @@ int main(const int argc, const char** argv) {
       p[i].vy = p[i].vy + 0.5 * dt *( dpdt1[i].vy + dpdt2[i].vy);
     }
 
-    cudaMemcpy(buf, d_buf, bytes, cudaMemcpyDeviceToHost);
+    // cudaMemcpy(buf, d_buf, bytes, cudaMemcpyDeviceToHost);
 
     /**********************************************************/
     //Método Leap-Frog
@@ -185,17 +192,35 @@ int main(const int argc, const char** argv) {
     // cudaMemcpy(d_buf, buf, bytes, cudaMemcpyHostToDevice);
     // // cudaMemcpy(d_buf_dt, buf_dt, bytes, cudaMemcpyHostToDevice);
 
-    // bodyForce<<<nBlocks, BLOCK_SIZE>>>(d_p, d_dpdt, dt, N, alpha); // compute interbody forces 
+    // bodyForce<<<nBlocks, BLOCK_SIZE>>>(d_p, d_dpdt1, dt, N, alpha); // compute interbody forces 
   
     // cudaMemcpy(buf, d_buf, bytes, cudaMemcpyDeviceToHost);
-    // cudaMemcpy(buf_dt, d_buf_dt, bytes, cudaMemcpyDeviceToHost);
+    // cudaMemcpy(buf_dt1, d_buf_dt1, bytes, cudaMemcpyDeviceToHost);
 
 
     // for (int i = 0 ; i < N; i++) { // integrate position
-    //   p[i].vx += dt*dpdt[i].vx; p[i].vy += dt*dpdt[i].vy;
-    //   p[i].x += dpdt[i].x*dt;
-    //   p[i].y += dpdt[i].y*dt;
+    //   p[i].vx += dt*dpdt1[i].vx; p[i].vy += dt*dpdt1[i].vy;
+    //   p[i].x += dpdt1[i].x*dt; p[i].y += dpdt1[i].y*dt;
     // }
+
+    /**********************************************************/
+    //Rebote
+    /**********************************************************/
+    for (int i = 0; i < N; i++) {
+      //Opero sobre las partículas que chocaron
+      if (sqrt(p[i].x * p[i].x + p[i].y * p[i].y) > R0) {
+
+        // Obtengo las variables correspondientes
+        float vx = p[i].vx;
+        float vy = p[i].vy;
+
+        float tita = atan2(p[i].y, p[i].x);
+        p[i].vx = -vx * cos(2 * tita) - vy * sin(2 * tita);
+        p[i].vy = -vx * sin(2 * tita) + vy * cos(2 * tita);
+
+      }
+
+    }
 
 
     /**********************************************************/
