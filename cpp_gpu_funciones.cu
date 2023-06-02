@@ -1,8 +1,7 @@
 // Importo librerías
 #include <iostream>
-#include <cmath>
-#include <random>
-//Para nros random:
+#include <math.h>
+#include <random> //Para nros random:
 #include <cstdlib>
 // #include <ctime>
 
