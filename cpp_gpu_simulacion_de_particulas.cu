@@ -5,13 +5,6 @@
 #include <stdlib.h>
 #include "timer.h"
 
-// #include <iostream>
-// #include <fstream>
-// #include <cmath>
-// #include <random>
-// #include <ctime>
-// #include "cpp_cpu_funciones.h"
-
 
 using namespace std;
 
@@ -34,9 +27,7 @@ const float R0_dim = 1e-6; // [cm]
 const float T0_dim = 300; // [K]
 
 
-
 void condiciones_iniciales(Particula *p0, int N) {
-
   //Lo siguiente es válido por cómo fue definida la adimnesionalización
   float R0 = 1.0;
 
@@ -54,12 +45,12 @@ void condiciones_iniciales(Particula *p0, int N) {
 }
 
 __global__
-void bodyForce(Particula *p, Particula *dpdt, float dt, int n, float alpha) {
+void bodyForce(Particula *p, Particula *dpdt, float dt, int N, float alpha) {
   int i = blockDim.x * blockIdx.x + threadIdx.x;
-  if (i < n) {
+  if (i < N) {
     float Fx = 0.0f; float Fy = 0.0f;
 
-    for (int j = 0; j < n; j++) {
+    for (int j = 0; j < N; j++) {
       float dx = p[i].x - p[j].x;
       float dy = p[i].y - p[j].y;
       float r2 = dx*dx + dy*dy + SOFTENING;
@@ -77,9 +68,9 @@ void bodyForce(Particula *p, Particula *dpdt, float dt, int n, float alpha) {
 
 
 __global__
-void position_integration(Particula *p, Particula *dpdt1, float dt, int n) {
+void position_integration(Particula *p, Particula *dpdt1, float dt, int N) {
   int i = blockDim.x * blockIdx.x + threadIdx.x;
-  if (i < n) {
+  if (i < N) {
     p[i].x = p[i].x + p[i].vx * dt + 0.5 * dt * dt * dpdt1[i].vx;
     p[i].y = p[i].y + p[i].vy * dt + 0.5 * dt * dt * dpdt1[i].vy;
      
@@ -88,9 +79,9 @@ void position_integration(Particula *p, Particula *dpdt1, float dt, int n) {
 
 
 __global__
-void velocity_integration(Particula *p, Particula *dpdt1, Particula *dpdt2 ,float dt, int n) {
+void velocity_integration(Particula *p, Particula *dpdt1, Particula *dpdt2 ,float dt, int N) {
   int i = blockDim.x * blockIdx.x + threadIdx.x;
-  if (i < n) {
+  if (i < N) {
     // ynew[2*N + i] = yold[2 * N + i] + 0.5 * dt * (F_vec[i] + F_vec_new[i]);
       p[i].vx = p[i].vx + 0.5 * dt *( dpdt1[i].vx + dpdt2[i].vx);
       p[i].vy = p[i].vy + 0.5 * dt *( dpdt1[i].vy + dpdt2[i].vy);
@@ -98,9 +89,9 @@ void velocity_integration(Particula *p, Particula *dpdt1, Particula *dpdt2 ,floa
 }
 
 __global__
-void rebote_blando(Particula *p, int n, float R0) {
+void rebote_blando(Particula *p, int N, float R0) {
   int i = blockDim.x * blockIdx.x + threadIdx.x;
-  if (i < n) {
+  if (i < N) {
       //Opero sobre las partículas que chocaron
       if (sqrt(p[i].x * p[i].x + p[i].y * p[i].y) > R0) {
 
@@ -177,12 +168,6 @@ int main(const int argc, const char** argv) {
 
   condiciones_iniciales(p, N); // Init pos / vel data
 
-  // Verifico si la fuerza es atractiva o repulsiva
-  // p[0].x = 0.1; p[1].x = -0.1;
-  // p[0].y = 0.; p[1].y = 0.;
-  // p[0].vx = 0.; p[1].vx = 0.;
-  // p[0].vy = 0.; p[1].vy = 0.;
-
 
   int nBlocks = (N + BLOCK_SIZE - 1) / BLOCK_SIZE;
   double totalTime = 0.0; 
@@ -197,41 +182,28 @@ int main(const int argc, const char** argv) {
     /**********************************************************/
 
     cudaMemcpy(d_buf, buf, bytes, cudaMemcpyHostToDevice);
-    // cudaMemcpy(d_buf_dt, buf_dt, bytes, cudaMemcpyHostToDevice);
+    
 
     bodyForce<<<nBlocks, BLOCK_SIZE>>>(d_p, d_dpdt1, dt, N, alpha); // compute interbody forces 
     cudaDeviceSynchronize();    
 
 
-    // cudaMemcpy(buf_dt1, d_buf_dt1, bytes, cudaMemcpyDeviceToHost);
-
     position_integration<<<nBlocks, BLOCK_SIZE>>>(d_p, d_dpdt1, dt, N);
     cudaDeviceSynchronize();  
-    // for (int i = 0 ; i < N; i++) { // position integration
-    //   p[i].x = p[i].x + p[i].vx * dt + 0.5 * dt * dt * dpdt1[i].vx;
-    //   p[i].y = p[i].y + p[i].vy * dt + 0.5 * dt * dt * dpdt1[i].vy;
-    // }
+
 
     // Cálculo de la fuerza en el siguiente paso de tiempo
-    // cudaMemcpy(d_buf, buf, bytes, cudaMemcpyHostToDevice);
+
 
     bodyForce<<<nBlocks, BLOCK_SIZE>>>(d_p, d_dpdt2, dt, N, alpha); // compute interbody forces 
     cudaDeviceSynchronize();  
 
-    // cudaMemcpy(buf_dt2, d_buf_dt2, bytes, cudaMemcpyDeviceToHost);
+
 
     velocity_integration<<<nBlocks, BLOCK_SIZE>>>(d_p, d_dpdt1, d_dpdt2 , dt, N);
     cudaDeviceSynchronize();  
-    // for (int i = 0 ; i < N; i++) { // velocity integration
-    // // ynew[2*N + i] = yold[2 * N + i] + 0.5 * dt * (F_vec[i] + F_vec_new[i]);
-    //   p[i].vx = p[i].vx + 0.5 * dt *( dpdt1[i].vx + dpdt2[i].vx);
-    //   p[i].vy = p[i].vy + 0.5 * dt *( dpdt1[i].vy + dpdt2[i].vy);
-    // }
 
 
-    /**********************************************************/
-    //Rebote
-    /**********************************************************/
     rebote_blando<<<nBlocks, BLOCK_SIZE>>>(d_p, N, R0); 
     cudaDeviceSynchronize();  
 
