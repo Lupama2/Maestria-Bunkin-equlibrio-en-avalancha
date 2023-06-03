@@ -173,7 +173,7 @@ int main(const int argc, const char** argv) {
   ofstream vel_x_file("resultados/cpp_gpu_v1_vel_x.txt");
   ofstream vel_y_file("resultados/cpp_gpu_v1_vel_y.txt");
   ofstream t_file("resultados/cpp_gpu_v1_t.txt");
-  ofstream t_computo_file("resultados/cpp_cpu_t_computo.txt", ios_base::app);
+  ofstream t_computo_file("resultados/cpp_gpu_v1_t_computo.txt", ios_base::app);
 
   cout << "Archivos creados correctamente" << endl;
 
