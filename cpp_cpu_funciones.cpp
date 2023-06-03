@@ -123,7 +123,7 @@ void condiciones_iniciales(float* y0, int N){
         y0[i] = r0 * cos(tita_r0); // = rx0_vec[i]
         y0[N + i] = r0 * sin(tita_r0); // = ry0_vec[i] 
 
-        float v0 = f_maxwell_adim();
+        float v0 = rand_dist(gen); //f_maxwell_adim();
         float tita_v0 = angle_dist(gen);
         y0[2 * N + i] = v0 * cos(tita_v0); // = vx0_vec[i]
         y0[3 * N + i] = v0 * sin(tita_v0); // = vy0_vec[i]
@@ -164,23 +164,23 @@ void rebote_blando(float rx, float ry, float vx, float vy, float *vx_new, float*
     return;
 }
 
-// void correccion_Temperatura(float *vx_vec, float *vy_vec, int N, float T0_dim, float m_dim, float v0_dim, float K){
-//     /*
-//     Verificar su funcionamiento. TO-DO
-//     Hacer Unit testing!
-//     */
-//     float denominador = 0;
-//     for (int i = 0; i < N; ++i){
-//         denominador += vx_vec[i] * vx_vec[i] + vy_vec[i] * vy_vec[i];
-//     }
-//     denominador = denominador*m_dim*v0_dim*v0_dim;
-//     float lambda = sqrt(T0_dim*K*2*(N-1) / denominador);
-//     for (int i = 0; i < N; ++i){
-//         vx_vec[i] = vx_vec[i] * lambda;
-//         vy_vec[i] = vy_vec[i] * lambda;
-//     }
-//     return;
-// }
+void correccion_Temperatura(float *vx_vec, float *vy_vec, int N){
+    /*
+    Verificar su funcionamiento. TO-DO
+    Hacer Unit testing!
+    */
+    float denominador = 0;
+    for (int i = 0; i < N; ++i){
+        denominador += vx_vec[i] * vx_vec[i] + vy_vec[i] * vy_vec[i];
+    }
+    denominador = denominador;
+    float lambda = sqrt((N-1) / denominador);
+    for (int i = 0; i < N; ++i){
+        vx_vec[i] = vx_vec[i] * lambda;
+        vy_vec[i] = vy_vec[i] * lambda;
+    }
+    return;
+}
 
 // Función para el método de Verlet
 void metodoVerlet(float* yold, float t, float dt, int N, float* ynew, float alpha) {
@@ -250,6 +250,6 @@ void avanzo_dt(float* y, float* ynew, float t, float dt, int N, float alpha) {
 
     }
     // Reescaleo la temperatura
-    // correccion_Temperatura(float *vx_vec, float *vy_vec, int N, float T0_dim, float m_dim, float v0_dim, float K)
+    correccion_Temperatura(&ynew[2*N], &ynew[3*N], N);
 
 }

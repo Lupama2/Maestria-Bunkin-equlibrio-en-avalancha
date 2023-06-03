@@ -27,10 +27,10 @@ const float K = 1.380649e-23 * (1 / 1e-7); // constante de Boltzmann [ergio/K], 
 
 // Radio del círculo y velocidad inicial de la partícula
 const float R0_dim = 1e-6; // [cm]
-const float T0_dim = 300; // [K]
+const float T0_dim = 1000; // [K]
 
 // Nro de partículas
-const int N = 2; 
+const int N = 10; 
 
 // srand(time(nullptr)); // Inicializar la semilla aleatoria con el tiempo actual
 
@@ -56,10 +56,10 @@ int main() {
     condiciones_iniciales(y, N);
 
     float t = 0;
-    float dt =  1e-3; //1e-8;
-    int n_pasos = 2*3000;
+    float dt =  1e-5; //1e-8;
+    int n_pasos = 100*100*100*1000;
 
-    int guardo_cada = 1;  // Valor deseado para guardo_cada
+    int guardo_cada = 1000000;  // Valor deseado para guardo_cada
 
     ofstream pos_x_file("resultados/cpp_cpu_pos_x.txt");
     ofstream pos_y_file("resultados/cpp_cpu_pos_y.txt");
