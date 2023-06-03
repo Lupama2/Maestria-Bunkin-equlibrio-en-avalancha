@@ -38,7 +38,7 @@ const int N = 10;
 
 int main() {
     // Cálculo de las constantes adimensionales
-    float v0_dim = sqrt(3 * K * T0_dim / m);
+    float v0_dim = sqrt(2 * K * T0_dim / m);
     float alpha = pow(e, 2) / (m * R0_dim * pow(v0_dim, 2));
     cout << "Constante adimensional, alpha = " << alpha << endl;
 
@@ -57,9 +57,8 @@ int main() {
 
     float t = 0;
     float dt =  1e-5; //1e-8;
-    int n_pasos = 100*100*100*1000;
-
-    int guardo_cada = 1000000;  // Valor deseado para guardo_cada
+    int n_pasos = 100*100*100;
+    int guardo_cada = 100;  // Valor deseado para guardo_cada
 
     ofstream pos_x_file("resultados/cpp_cpu_pos_x.txt");
     ofstream pos_y_file("resultados/cpp_cpu_pos_y.txt");

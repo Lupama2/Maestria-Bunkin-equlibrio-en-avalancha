@@ -174,7 +174,7 @@ void correccion_Temperatura(float *vx_vec, float *vy_vec, int N){
         denominador += vx_vec[i] * vx_vec[i] + vy_vec[i] * vy_vec[i];
     }
     denominador = denominador;
-    float lambda = sqrt((N-1) / denominador);
+    float lambda = sqrt((N) / denominador);
     for (int i = 0; i < N; ++i){
         vx_vec[i] = vx_vec[i] * lambda;
         vy_vec[i] = vy_vec[i] * lambda;
