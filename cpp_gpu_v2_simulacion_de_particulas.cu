@@ -207,7 +207,7 @@ int main(const int argc, const char** argv) {
 
 
   int nBlocks = (N + BLOCK_SIZE - 1) / BLOCK_SIZE;
-  double t_computo_total = 0.0; //Tiempo de cómputo
+  float t_computo_total = 0.0; //Tiempo de cómputo
 
   
   /***************************************
@@ -272,7 +272,7 @@ int main(const int argc, const char** argv) {
     CALCULO TIEMPOS DE CÓMPUTO
     ****************************************/
 
-    const double t_computo_paso = GetTimer() / 1000.0;
+    const float t_computo_paso = GetTimer() / 1000.0;
     //No tiro ninguna iteración
     t_computo_total += t_computo_paso;
     if (i == 0){
@@ -304,7 +304,7 @@ int main(const int argc, const char** argv) {
   cond_ini_file << R0 << " " << v0 << " " << R0_dim << " " << v0_dim;
 
 
-  double avgTime = t_computo_total / (double)(n_pasos-1); 
+  float avgTime = t_computo_total / (float)(n_pasos-1); 
 
   #ifdef SHMOO
     printf("%d, %0.3f\n", N, 1e-9 * N * N / avgTime);
