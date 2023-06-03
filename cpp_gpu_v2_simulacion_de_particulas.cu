@@ -273,9 +273,9 @@ int main(const int argc, const char** argv) {
     ****************************************/
 
     const double t_computo_paso = GetTimer() / 1000.0;
-    if (iter > 1) { // First iter is warm up
-        t_computo_total += t_computo_paso; 
-    }
+    //No tiro ninguna iteración
+    t_computo_total += t_computo_paso; 
+
 
   
 

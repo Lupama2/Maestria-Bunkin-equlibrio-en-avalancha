@@ -12,6 +12,7 @@ g++ -O3 cpp_cpu_funciones.cpp cpp_cpu_simulacion_de_particulas.cpp -o cpp_cpu_si
 #include <random>
 #include <ctime>
 #include "cpp_cpu_funciones.h"
+#include "timer.h"
 
 
 using namespace std;
@@ -30,7 +31,7 @@ const float R0_dim = 1e-6; // [cm]
 const float T0_dim = 1000; // [K]
 
 // Nro de partículas
-const int N = 10; 
+const int N = 100; 
 
 // srand(time(nullptr)); // Inicializar la semilla aleatoria con el tiempo actual
 
@@ -58,19 +59,23 @@ int main() {
 
     float t = 0;
     float dt =  1e-5; //1e-8;
-    int n_pasos = 100*100*100;
-    int guardo_cada = 100;  // Valor deseado para guardo_cada
+    int n_pasos = 10;
+    int guardo_cada = 1;  // Valor deseado para guardo_cada
 
     ofstream pos_x_file("resultados/cpp_cpu_pos_x.txt");
     ofstream pos_y_file("resultados/cpp_cpu_pos_y.txt");
     ofstream vel_x_file("resultados/cpp_cpu_vel_x.txt");
     ofstream vel_y_file("resultados/cpp_cpu_vel_y.txt");
     ofstream t_file("resultados/cpp_cpu_t.txt");
+    ofstream t_computo_file("resultados/cpp_cpu_t_computo.txt", ios_base::app);
     
     cout << "Archivos creados correctamente" << endl;
+    float t_computo_total = 0.0;
 
     for (int i = 0; i < n_pasos; i++) {
-        
+
+        StartTimer();
+
         if (i % guardo_cada == 0) {
             cout << "t = " << t << "\tEvolucion al " << float(i) / float(n_pasos) * 100. << "%\n";
         }
@@ -97,6 +102,18 @@ int main() {
             y[j] = ynew[j];
         }
 
+
+        const float t_computo_paso = GetTimer() / 1000.0;
+        //No tiro ninguna iteración
+        t_computo_total += t_computo_paso;
+        if (i == 0){
+            t_computo_file << N << " ";
+        }
+        t_computo_file << t_computo_paso << " ";
+        if (i == n_pasos - 1){
+            t_computo_file << "\n";
+        }
+    
     }
 
     pos_x_file.close();
