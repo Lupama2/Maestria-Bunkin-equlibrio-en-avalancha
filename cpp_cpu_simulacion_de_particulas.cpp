@@ -30,14 +30,19 @@ const float K = 1.380649e-23 * (1 / 1e-7); // constante de Boltzmann [ergio/K], 
 const float R0_dim = 1e-6; // [cm]
 const float T0_dim = 1000; // [K]
 
-// Nro de partículas
-const int N = 100; 
+
 
 // srand(time(nullptr)); // Inicializar la semilla aleatoria con el tiempo actual
 
 
 
-int main() {
+int main(const int argc, const char** argv) {
+
+    // Nro de partículas
+    int N = 100; 
+    if (argc > 1) N = atoi(argv[1]);
+    cout << "N = " << N << " particulas" << endl;
+
     // Cálculo de las constantes adimensionales
     float v0_dim = sqrt(2 * K * T0_dim / m);
     float alpha = pow(e, 2) / (m * R0_dim * pow(v0_dim, 2));
