@@ -164,7 +164,6 @@ void rebote_blando(float rx, float ry, float vx, float vy, float *vx_new, float*
     return;
 }
 
-
 // Función para el método de Verlet
 void metodoVerlet(float* yold, float t, float dt, int N, float* ynew, float alpha) {
 
