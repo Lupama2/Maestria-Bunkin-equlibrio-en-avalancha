@@ -60,48 +60,48 @@ void f(float* y, float* dydt, float alpha, int N) {
 
 
 
-float f_maxwell_pura() {
-    /*
-    Los nros random de esta distribución siguen la distribución de maxwell-blotzmann
+// float f_maxwell_pura() {
+//     /*
+//     Los nros random de esta distribución siguen la distribución de maxwell-blotzmann
 
-    f(v) = np.sqrt(2/pi)*v**2*exp(-v**2/2)
+//     f(v) = np.sqrt(2/pi)*v**2*exp(-v**2/2)
 
-    Aú
-    */
+//     Aú
+//     */
 
 
-    // Crear generadores de números aleatorios con distribución normal
-    static std::default_random_engine generator;
-    static std::normal_distribution<float> distribution(0.0, 1.0);
+//     // Crear generadores de números aleatorios con distribución normal
+//     static std::default_random_engine generator;
+//     static std::normal_distribution<float> distribution(0.0, 1.0);
 
-    // Generar tres números aleatorios con una distribución normal usando la transformación de Box-Muller
-    float x1 = distribution(generator);
-    float x2 = distribution(generator);
-    float x3 = distribution(generator);
+//     // Generar tres números aleatorios con una distribución normal usando la transformación de Box-Muller
+//     float x1 = distribution(generator);
+//     float x2 = distribution(generator);
+//     float x3 = distribution(generator);
 
-    // Calcular la velocidad en función de la temperatura T
-    float velocity = sqrt(x1 * x1 + x2 * x2 + x3 * x3);
+//     // Calcular la velocidad en función de la temperatura T
+//     float velocity = sqrt(x1 * x1 + x2 * x2 + x3 * x3);
 
-    return velocity;
-}
+//     return velocity;
+// }
 
-float f_maxwell_adim(){
-    /*
-    Falta corregir esta función
+// float f_maxwell_adim(){
+//     /*
+//     Falta corregir esta función
     
-    */
-    /*
-    Rehacer. TO-DO.
-    Por cómo se usa abajo, sólo genera 1 nro random
-    */
-    // random_device rd;
-    // mt19937 gen(rd());
-    // maxwell_distribution<float> dist(0.0, sqrt(m / (K * T0_dim)));
-    // return dist(gen) * v0_dim;
-    // Función para generar un número aleatorio en un rango específico
+//     */
+//     /*
+//     Rehacer. TO-DO.
+//     Por cómo se usa abajo, sólo genera 1 nro random
+//     */
+//     // random_device rd;
+//     // mt19937 gen(rd());
+//     // maxwell_distribution<float> dist(0.0, sqrt(m / (K * T0_dim)));
+//     // return dist(gen) * v0_dim;
+//     // Función para generar un número aleatorio en un rango específico
 
-    return f_maxwell_pura()*sqrt(3);
-}
+//     return f_maxwell_pura()*sqrt(3);
+// }
 
 
 
@@ -109,22 +109,18 @@ void condiciones_iniciales(float* y0, int N){
     /*
     Verificar funcionamiento de la generación de nros random. TO-DO
     */
-    random_device rd;
-    mt19937 gen(rd());
-    uniform_real_distribution<float> rand_dist(0.0, 1.0);
-    uniform_real_distribution<float> angle_dist(0.0, 2 * pi);
 
     //Lo siguiente es válido por cómo fue definida la adimnesionalización
     float R0 = 1.0;
 
     for (int i = 0; i < N; ++i){
-        float r0 = R0 * rand_dist(gen);
-        float tita_r0 = angle_dist(gen);
+        float r0 = R0 * (rand() / (float)RAND_MAX);
+        float tita_r0 = 2*pi*(rand() / (float)RAND_MAX);
         y0[i] = r0 * cos(tita_r0); // = rx0_vec[i]
         y0[N + i] = r0 * sin(tita_r0); // = ry0_vec[i] 
 
-        float v0 = rand_dist(gen); //f_maxwell_adim();
-        float tita_v0 = angle_dist(gen);
+        float v0 = (rand() / (float)RAND_MAX); //f_maxwell_adim();
+        float tita_v0 = 2*pi*(rand() / (float)RAND_MAX);
         y0[2 * N + i] = v0 * cos(tita_v0); // = vx0_vec[i]
         y0[3 * N + i] = v0 * sin(tita_v0); // = vy0_vec[i]
     }

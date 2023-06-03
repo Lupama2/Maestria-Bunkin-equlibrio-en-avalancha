@@ -53,6 +53,7 @@ int main() {
     float ynew[4 * N];
 
     // Condiciones iniciales
+    srand(time(nullptr));
     condiciones_iniciales(y, N);
 
     float t = 0;
