@@ -24,7 +24,7 @@ const float K = 1.380649e-23 * (1 / 1e-7); // constante de Boltzmann [ergio/K], 
 
 // Radio del círculo y velocidad inicial de la partícula
 const float R0_dim = 1e-6; // [cm]
-const float T0_dim = 300; // [K]
+const float T0_dim = 1000; // [K]
 
 
 void condiciones_iniciales(Particula *p0, int N) {
@@ -107,13 +107,32 @@ void rebote_blando(Particula *p, int N, float R0) {
 }
 
 
+__global__
+void correccion_Temperatura(Particula *p, int N) {
+  int i = blockDim.x * blockIdx.x + threadIdx.x;
+  if (i < N) {
+    //Calculo lambda
+    float denominador = 0;
+    for (int j = 0; j < N; ++j){
+        denominador += p[j].vx * p[j].vx + p[j].vy * p[j].vy;
+    }
+    float lambda = sqrt(N/denominador);
+    //Corrijo las temperaturas
+    p[i].vx = lambda*p[i].vx;
+    p[i].vy = lambda*p[i].vy;
+
+  }
+}
+
+
+
 int main(const int argc, const char** argv) {
   // int N = 30000; // Nro de partículas del código de ejemplo
   int N = 10;
   if (argc > 1) N = atoi(argv[1]);
 
   // Cálculo de las constantes adimensionales
-  float v0_dim = sqrt(3 * K * T0_dim / m);
+  float v0_dim = sqrt(2 * K * T0_dim / m);
   float alpha = pow(e, 2) / (m * R0_dim * pow(v0_dim, 2));
   cout << "Constante adimensional, alpha = " << alpha << endl;
 
@@ -130,7 +149,7 @@ int main(const int argc, const char** argv) {
   float t = 0.;
 
   //Defino archivos para guardar los resultados
-  int guardo_cada = 1;  // Valor deseado para guardo_cada
+  int guardo_cada = 100;  // Valor deseado para guardo_cada
 
   ofstream pos_x_file("resultados/cpp_gpu_pos_x.txt");
   ofstream pos_y_file("resultados/cpp_gpu_pos_y.txt");
@@ -207,6 +226,9 @@ int main(const int argc, const char** argv) {
     rebote_blando<<<nBlocks, BLOCK_SIZE>>>(d_p, N, R0); 
     cudaDeviceSynchronize();  
 
+    correccion_Temperatura<<<nBlocks, BLOCK_SIZE>>>(d_p, N);
+    cudaDeviceSynchronize();
+
     /**********************************************************/
     //Guardo datos
     /**********************************************************/
@@ -271,5 +293,6 @@ int main(const int argc, const char** argv) {
   #endif
     free(buf);
     cudaFree(d_buf);
-
+    cudaFree(d_buf_dt1);
+    cudaFree(d_buf_dt2);
 }

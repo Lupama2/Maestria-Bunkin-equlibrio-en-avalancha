@@ -4,10 +4,6 @@ Code Management (CD):
 * Documentar funciones de cpp_cpu
 
 
-*Hacer f_maxwell() en cpp_gpu
-
-#include <random>
-#include <cmath>
 
 
 Si cada paso es independiente de los demás, entonces puedo hacer estadística del mismo N usando los pasos de tiempo
@@ -21,18 +17,15 @@ La charla tiene que ser de 15'. Mostrar motivación, cómo paralelizamos el cód
 
 
 ¿Qué falta hacer?
--Verificar el funcionamiento de f_maxwell(): generar N nros con la distribución uniforme y ver que lo sea. generar N nros con la distribución de maxwell y ver que lo sea
--Intentar correr el código de python y de c++ en el cluster
-
-
--Determinar qué N y dt analizar en el caso de python (el programa más exigente). Estos serán los que analizaré en los demás casos. No le debe tomar más de 20'. El dt tiene que ser suficientemente chico para que a tiempos largos no diverja el programa. PERO solo se ejecutará un único paso de tiempo en la versión final.
 -¿Podría recibir N y dt desde la cmd como los cpp de clases? En caso negativo, reducir el programa de python a una función, de modo de poder poner de input varios N y dt, para luego correr en el cluster.
--Incluir la repetición M de cada caso para tener estadística
+-Determinar qué N y dt analizar en el caso de python (el programa más exigente). Estos serán los que analizaré en los demás casos. No le debe tomar más de 20'. El dt tiene que ser suficientemente chico para que a tiempos largos no diverja el programa. PERO solo se ejecutará un único paso de tiempo en la versión final.
 -Que tome los tiempos y los guarde en un archivo. En caso de que pueda recibir N y dt desde la cmd, imprimir directamente los tiempos. Luego configuraré el comando para que guarde los outputs en un archivo
+
+-Hacer la versión paralela de py: cambian numpy por cupy Y NADA MÁS
+
 -Ver cómo hacer profiling en el cluster del código py en un único paso de tiempo. Esto es solamente para la presentación.
 -Ver cómo hacer profiling en el cluster del código cpp en un único paso de tiempo. Esto es solamente para la presentación.
 
--Hacer la versión paralela de py: cambian numpy por cupy Y NADA MÁS
 
 -Preparar el archivo de cpp_cpu para que tome N y dt de consola
 -Ver qué línea debería correr desde el cluster para hacer un loop sobre N y dt.
