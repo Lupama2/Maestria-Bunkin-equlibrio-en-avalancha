@@ -39,4 +39,4 @@ g++ -O3 cpp_cpu_simulacion_de_particulas.cpp cpp_cpu_funciones.cpp -std=c++11 -o
 #1 sola vez
 # ./cpp_cpu_simulacion_de_particulas
 #varias veces
-for N in 2 4 8 16 32 64 128 256 512 1024 2048; do ./cpp_cpu_simulacion_de_particulas $N; done
+for N in 2 4 8 16 32 64 128 256 512 1024 2048; do ./cpp_cpu_simulacion_de_particulas $N 1E-5 100 100; done
