@@ -220,6 +220,7 @@ int main(const int argc, const char** argv) {
   /***************************************
   LOOP TEMPORAL
   ****************************************/
+  cudaMemcpy(d_buf, buf, bytes, cudaMemcpyHostToDevice);
   for (int iter = 1; iter <= n_pasos; iter++) {
     // En cada loop de tiempo se copian los datos a la GPU, se paraleliza en GPU y luego se vuelven a copiar los datos a CPU  
     StartTimer();
@@ -228,7 +229,7 @@ int main(const int argc, const char** argv) {
     MÉTODO DE VERLET
     ****************************************/
 
-    cudaMemcpy(d_buf, buf, bytes, cudaMemcpyHostToDevice); //Esto se puede poner afuera del Loop. TO-DO
+    
     
     //1. Calculo las fuerzas
     bodyForce<<<nBlocks, BLOCK_SIZE>>>(d_p, d_dpdt1, dt, N, alpha);
