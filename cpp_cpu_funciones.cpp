@@ -164,6 +164,24 @@ void rebote_blando(float rx, float ry, float vx, float vy, float *vx_new, float*
     return;
 }
 
+// void correccion_Temperatura(float *vx_vec, float *vy_vec, int N, float T0_dim, float m_dim, float v0_dim, float K){
+//     /*
+//     Verificar su funcionamiento. TO-DO
+//     Hacer Unit testing!
+//     */
+//     float denominador = 0;
+//     for (int i = 0; i < N; ++i){
+//         denominador += vx_vec[i] * vx_vec[i] + vy_vec[i] * vy_vec[i];
+//     }
+//     denominador = denominador*m_dim*v0_dim*v0_dim;
+//     float lambda = sqrt(T0_dim*K*2*(N-1) / denominador);
+//     for (int i = 0; i < N; ++i){
+//         vx_vec[i] = vx_vec[i] * lambda;
+//         vy_vec[i] = vy_vec[i] * lambda;
+//     }
+//     return;
+// }
+
 // Función para el método de Verlet
 void metodoVerlet(float* yold, float t, float dt, int N, float* ynew, float alpha) {
 
@@ -231,5 +249,7 @@ void avanzo_dt(float* y, float* ynew, float t, float dt, int N, float alpha) {
         }
 
     }
+    // Reescaleo la temperatura
+    // correccion_Temperatura(float *vx_vec, float *vy_vec, int N, float T0_dim, float m_dim, float v0_dim, float K)
 
 }
