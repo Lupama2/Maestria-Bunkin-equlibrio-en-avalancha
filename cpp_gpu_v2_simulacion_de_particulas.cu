@@ -139,22 +139,27 @@ void correccion_Temperatura(Particula *p, int N) {
 int main(const int argc, const char** argv) {
 
   /***************************************
-  CONDICIONES INICIALES
+  CONDICIONES INICIALES Y DE INTEGRACIÓN
   ****************************************/
   // Radio del círculo y velocidad inicial de la partícula
   const float R0_dim = 1e-6; // [cm]
   const float T0_dim = 1000; // [K]
 
   //Nro de partículas
-  int N = 100000;
-  if (argc > 1) N = atoi(argv[1]);
+  int N = 100;
+  float dt = 1e-3; //1e-8;; // time step
+  int n_pasos = 10;
+  int guardo_cada = 100;  // Valor deseado para guardo_cada
+  if (argc > 1){
+    N = atoi(argv[1]);
+    dt = atof(argv[2]);
+    n_pasos = atoi(argv[3]);
+    guardo_cada = atoi(argv[4]);};
 
-  /***************************************
-  CONDICIONES DE INTEGRACIÓN
-  ****************************************/
-  const float dt = 1e-3; //1e-8;; // time step
-  const int n_pasos = 10000*100;
-  int guardo_cada = 10000;  // Valor deseado para guardo_cada
+  cout << "N = " << N << " particulas" << endl;
+  cout << "dt = " << dt << endl;
+  cout << "n_pasos = " << n_pasos << endl;
+  cout << "guardo_cada = " << guardo_cada << endl;
 
   /***************************************
   CUENTAS PREVIAS

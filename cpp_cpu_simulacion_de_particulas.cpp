@@ -40,8 +40,24 @@ int main(const int argc, const char** argv) {
 
     // Nro de partículas
     int N = 100; 
-    if (argc > 1) N = atoi(argv[1]);
+    float dt =  1e-5; //1e-8;
+    int n_pasos = 10;
+    int guardo_cada = 1;  // Valor deseado para guardo_cada
+
+    if (argc > 1){
+        N = atoi(argv[1]);
+        dt = atof(argv[2]);
+        n_pasos = atoi(argv[3]);
+        guardo_cada = atoi(argv[4]);};
+
     cout << "N = " << N << " particulas" << endl;
+    cout << "dt = " << dt << endl;
+    cout << "n_pasos = " << n_pasos << endl;
+    cout << "guardo_cada = " << guardo_cada << endl;
+    
+
+
+
 
     // Cálculo de las constantes adimensionales
     float v0_dim = sqrt(2 * K * T0_dim / m);
@@ -63,9 +79,6 @@ int main(const int argc, const char** argv) {
     condiciones_iniciales(y, N);
 
     float t = 0;
-    float dt =  1e-5; //1e-8;
-    int n_pasos = 10;
-    int guardo_cada = 1;  // Valor deseado para guardo_cada
 
     ofstream pos_x_file("resultados/cpp_cpu_pos_x.txt");
     ofstream pos_y_file("resultados/cpp_cpu_pos_y.txt");
