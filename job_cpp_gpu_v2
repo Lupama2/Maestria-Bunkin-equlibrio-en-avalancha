@@ -30,9 +30,7 @@ module load cuda/10.0.130
 #compilo el programa
 nvcc cpp_gpu_v2_simulacion_de_particulas.cu -o cpp_gpu_v2_simulacion_de_particulas
 #ejecuto
-./cpp_gpu_v2_simulacion_de_particulas
-
-#ejecutar el o los binarios con sus respectivos argumentos
-# ./multmat
-# for l in 2 4 8 16 32 64 128 256 512; do ./multmat $l; done > tiempos.dat
-
+#1 sola vez
+# ./cpp_gpu_v2_simulacion_de_particulas
+#varias veces
+for N in 2 4 8 16 32 64 128 256 512 1024 2048; do ./cpp_gpu_v2_simulacion_de_particulas $N; done
