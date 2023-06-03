@@ -274,7 +274,14 @@ int main(const int argc, const char** argv) {
 
     const double t_computo_paso = GetTimer() / 1000.0;
     //No tiro ninguna iteración
-    t_computo_total += t_computo_paso; 
+    t_computo_total += t_computo_paso;
+    if (i == 0){
+        t_computo_file << N << " ";
+    }
+    t_computo_file << t_computo_paso << " ";
+    if (i == n_pasos - 1){
+        t_computo_file << "\n";
+    }
 
 
   
@@ -289,6 +296,8 @@ int main(const int argc, const char** argv) {
   pos_y_file.close();
   vel_x_file.close();
   vel_y_file.close();
+  t_file.close();
+  t_computo_file.close();
 
   //Guardo condiciones iniciales
   ofstream cond_ini_file("resultados/cpp_gpu_v2_cond_ini.txt");

@@ -120,6 +120,8 @@ int main() {
     pos_y_file.close();
     vel_x_file.close();
     vel_y_file.close();
+    t_file.close();
+    t_computo_file.close();
 
     //Guardo condiciones iniciales
     ofstream cond_ini_file("resultados/cpp_cpu_cond_ini.txt");
