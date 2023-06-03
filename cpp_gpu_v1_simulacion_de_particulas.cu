@@ -1,10 +1,16 @@
+/*
+Versión CUDA C++ para GPU
+
+En esta versión se paralelizan las operaciones de cálculo de fuerzas, integración de las ecuaciones de movimiento, rebote blando y corrección de la temperatura en cada paso de tiempo. Cada cálculo requiere un kernel distinto.
+*/
+
+//Importo librerías
 #include <iostream>
 #include <fstream>
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include "timer.h"
-
 
 using namespace std;
 
@@ -19,12 +25,7 @@ const float pi = acos(-1.0);
 // Constantes físicas
 const float m = 9.11e-31 * 1e3; // [g]
 const float e = 1.602e-19 * (1 / 3.336641e-10); // [Fr]
-// const float c = 299792458 * 1e2; // [cm/s]
 const float K = 1.380649e-23 * (1 / 1e-7); // constante de Boltzmann [ergio/K], obtenida de NIST
-
-// Radio del círculo y velocidad inicial de la partícula
-const float R0_dim = 1e-6; // [cm]
-const float T0_dim = 1000; // [K]
 
 
 void condiciones_iniciales(Particula *p0, int N) {
@@ -66,7 +67,6 @@ void bodyForce(Particula *p, Particula *dpdt, float dt, int N, float alpha) {
   }
 }
 
-
 __global__
 void position_integration(Particula *p, Particula *dpdt1, float dt, int N) {
   int i = blockDim.x * blockIdx.x + threadIdx.x;
@@ -76,7 +76,6 @@ void position_integration(Particula *p, Particula *dpdt1, float dt, int N) {
      
   }
 }
-
 
 __global__
 void velocity_integration(Particula *p, Particula *dpdt1, Particula *dpdt2 ,float dt, int N) {
@@ -106,7 +105,6 @@ void rebote_blando(Particula *p, int N, float R0) {
   }
 }
 
-
 __global__
 void correccion_Temperatura(Particula *p, int N) {
   int i = blockDim.x * blockIdx.x + threadIdx.x;
@@ -127,9 +125,29 @@ void correccion_Temperatura(Particula *p, int N) {
 
 
 int main(const int argc, const char** argv) {
-  // int N = 30000; // Nro de partículas del código de ejemplo
+
+  /***************************************
+  CONDICIONES INICIALES
+  ****************************************/
+  // Radio del círculo y velocidad inicial de la partícula
+  const float R0_dim = 1e-6; // [cm]
+  const float T0_dim = 1000; // [K]
+
+  //Nro de partículas
   int N = 100000;
   if (argc > 1) N = atoi(argv[1]);
+
+  /***************************************
+  CONDICIONES DE INTEGRACIÓN
+  ****************************************/
+  const float dt = 1e-3; //1e-8;; // time step
+  const int n_pasos = 10;
+  int guardo_cada = 100;  // Valor deseado para guardo_cada
+
+
+  /***************************************
+  CUENTAS PREVIAS
+  ****************************************/
 
   // Cálculo de las constantes adimensionales
   float v0_dim = sqrt(2 * K * T0_dim / m);
@@ -139,37 +157,27 @@ int main(const int argc, const char** argv) {
   // Radio del círculo y velocidad inicial de la partícula adimensionales
   float R0 = 1;
   float v0 = 1;
-
-  cout << "Radio y velocidad iniciales adimensionales: " << R0 << ",\t" << v0 << endl;
-  
-
-  const float dt = 1e-3; //1e-8;; // time step
-  // const int nIters = 10;  // simulation iterations en el ejemplo
-  const int n_pasos = 10;
   float t = 0.;
+ 
 
   //Defino archivos para guardar los resultados
-  int guardo_cada = 100;  // Valor deseado para guardo_cada
-
-  ofstream pos_x_file("resultados/cpp_gpu_pos_x.txt");
-  ofstream pos_y_file("resultados/cpp_gpu_pos_y.txt");
-  ofstream vel_x_file("resultados/cpp_gpu_vel_x.txt");
-  ofstream vel_y_file("resultados/cpp_gpu_vel_y.txt");
-  ofstream t_file("resultados/cpp_gpu_t.txt");
+  ofstream pos_x_file("resultados/cpp_gpu_v1_pos_x.txt");
+  ofstream pos_y_file("resultados/cpp_gpu_v1_pos_y.txt");
+  ofstream vel_x_file("resultados/cpp_gpu_v1_vel_x.txt");
+  ofstream vel_y_file("resultados/cpp_gpu_v1_vel_y.txt");
+  ofstream t_file("resultados/cpp_gpu_v1_t.txt");
 
   cout << "Archivos creados correctamente" << endl;
+
+  /***************************************
+  ALOCACIÓN DE MEMORIA
+  ****************************************/
 
   //Aloco memoria en host
   int bytes = N*sizeof(Particula);
 
   float *buf = (float*)malloc(bytes);
   Particula *p = (Particula*)buf;
-  
-  // float *buf_dt1 = (float*)malloc(bytes);
-  // Particula *dpdt1 = (Particula*)buf_dt1;
-
-  // float *buf_dt2 = (float*)malloc(bytes);
-  // Particula *dpdt2 = (Particula*)buf_dt2;
 
   //Aloco memoria en device
   float *d_buf;
@@ -184,60 +192,56 @@ int main(const int argc, const char** argv) {
   cudaMalloc(&d_buf_dt2, bytes);
   Particula *d_dpdt2 = (Particula*)d_buf_dt2;
 
-
-  condiciones_iniciales(p, N); // Init pos / vel data
-
+  //Asigno las condiciones iniciales
+  condiciones_iniciales(p, N);
 
   int nBlocks = (N + BLOCK_SIZE - 1) / BLOCK_SIZE;
-  double totalTime = 0.0; 
+  double t_computo_total = 0.0; //Tiempo de cómputo
 
+
+  /***************************************
+  LOOP TEMPORAL
+  ****************************************/
   for (int iter = 1; iter <= n_pasos; iter++) {
     // En cada loop de tiempo se copian los datos a la GPU, se paraleliza en GPU y luego se vuelven a copiar los datos a CPU  
     StartTimer();
 
+    /***************************************
+    MÉTODO DE VERLET
+    ****************************************/
 
-    /**********************************************************/
-    //Método de Verlet
-    /**********************************************************/
-
-    cudaMemcpy(d_buf, buf, bytes, cudaMemcpyHostToDevice);
+    cudaMemcpy(d_buf, buf, bytes, cudaMemcpyHostToDevice); //Esto se puede poner afuera del Loop. TO-DO
     
-
-    bodyForce<<<nBlocks, BLOCK_SIZE>>>(d_p, d_dpdt1, dt, N, alpha); // compute interbody forces 
+    //1. Calculo las fuerzas
+    bodyForce<<<nBlocks, BLOCK_SIZE>>>(d_p, d_dpdt1, dt, N, alpha);
     cudaDeviceSynchronize();    
 
-
+    //2. Integro las posiciones
     position_integration<<<nBlocks, BLOCK_SIZE>>>(d_p, d_dpdt1, dt, N);
     cudaDeviceSynchronize();  
 
 
-    // Cálculo de la fuerza en el siguiente paso de tiempo
-
-
-    bodyForce<<<nBlocks, BLOCK_SIZE>>>(d_p, d_dpdt2, dt, N, alpha); // compute interbody forces 
+    //3. Calculo las fuerzas con las nuevas posiciones
+    bodyForce<<<nBlocks, BLOCK_SIZE>>>(d_p, d_dpdt2, dt, N, alpha);
     cudaDeviceSynchronize();  
 
-
-
+    //4. Integro las velocidades
     velocity_integration<<<nBlocks, BLOCK_SIZE>>>(d_p, d_dpdt1, d_dpdt2 , dt, N);
     cudaDeviceSynchronize();  
 
-
+    //5. Computo los rebotes
     rebote_blando<<<nBlocks, BLOCK_SIZE>>>(d_p, N, R0); 
     cudaDeviceSynchronize();  
 
+    //6. Corrijo las velocidades para que la temperatura sea la deseada
     correccion_Temperatura<<<nBlocks, BLOCK_SIZE>>>(d_p, N);
     cudaDeviceSynchronize();
 
-    /**********************************************************/
-    //Guardo datos
-    /**********************************************************/
+    /***************************************
+    GUARDO DATOS
+    ****************************************/
     t = t + dt;
 
-
-    // if (iter % guardo_cada == 0) {
-    //   cout << "t = " << t << "\tEvolucion al " << float(i) / float(n_pasos) * 100. << "%\n";
-    // }
     if (iter % guardo_cada == 0) {
       //Copio de Device a Host
       cudaMemcpy(buf, d_buf, bytes, cudaMemcpyDeviceToHost);
@@ -255,19 +259,19 @@ int main(const int argc, const char** argv) {
     }
 
 
-    /**********************************************************/
-    //Calculo tiempos
-    /**********************************************************/
+    /***************************************
+    CALCULO TIEMPOS DE CÓMPUTO
+    ****************************************/
 
-    const double tElapsed = GetTimer() / 1000.0;
+    const double t_computo_paso = GetTimer() / 1000.0;
     if (iter > 1) { // First iter is warm up
-        totalTime += tElapsed; 
+        t_computo_total += t_computo_paso; 
     }
 
   
 
     #ifndef SHMOO
-        printf("Iteration %d: %.3f seconds\n", iter, tElapsed);
+        printf("Iteration %d: %.3f seconds\n", iter, t_computo_paso);
     #endif
   }
 
@@ -278,11 +282,11 @@ int main(const int argc, const char** argv) {
   vel_y_file.close();
 
   //Guardo condiciones iniciales
-  ofstream cond_ini_file("resultados/cpp_gpu_cond_ini.txt");
+  ofstream cond_ini_file("resultados/cpp_gpu_v1_cond_ini.txt");
   cond_ini_file << R0 << " " << v0 << " " << R0_dim << " " << v0_dim;
 
 
-  double avgTime = totalTime / (double)(n_pasos-1); 
+  double avgTime = t_computo_total / (double)(n_pasos-1); 
 
   #ifdef SHMOO
     printf("%d, %0.3f\n", N, 1e-9 * N * N / avgTime);
