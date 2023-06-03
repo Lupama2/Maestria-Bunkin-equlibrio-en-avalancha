@@ -26,6 +26,19 @@ La charla tiene que ser de 15'. Mostrar motivación, cómo paralelizamos el cód
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
 ¿Cómo paralelizar mi código?
 En 2 clases se va a explicar cómo hacer dinámica molecular con GPU. Creo que no me va a servir avanzar mucho y quizás sea mejor esperar a esa clase
 
