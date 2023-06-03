@@ -267,11 +267,11 @@ int main(const int argc, const char** argv) {
     const float t_computo_paso = GetTimer() / 1000.0;
     //No tiro ninguna iteración
     t_computo_total += t_computo_paso;
-    if (i == 0){
+    if (iter == 1){
         t_computo_file << N << " ";
     }
     t_computo_file << t_computo_paso << " ";
-    if (i == n_pasos - 1){
+    if (iter == n_pasos){
         t_computo_file << "\n";
     }
 
