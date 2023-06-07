@@ -39,7 +39,7 @@ const float T0_dim = 1000; // [K]
 int main(const int argc, const char** argv) {
 
     // Nro de partículas
-    int N = 100; 
+    int N = 1000; 
     float dt =  1e-5; //1e-8;
     int n_pasos = 10;
     int guardo_cada = 1;  // Valor deseado para guardo_cada
