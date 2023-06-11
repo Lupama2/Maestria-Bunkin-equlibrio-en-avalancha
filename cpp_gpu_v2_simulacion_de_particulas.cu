@@ -71,13 +71,14 @@ void bodyForce(Particula *p, Particula *dpdt, float dt, int N, float alpha) {
 
         Fx += alpha * dx * inv_r3; Fy += alpha * dy * inv_r3;
       }
-      //Asigno las derivadas
-      dpdt[i].x = p[i].vx; dpdt[i].y = p[i].vy;
-      dpdt[i].vx = Fx; dpdt[i].vy = Fy;
-      
     }
+    //Asigno las derivadas
+    dpdt[i].x = p[i].vx; dpdt[i].y = p[i].vy;
+    dpdt[i].vx = Fx; dpdt[i].vy = Fy;
+        
   }
 }
+
 
 __global__
 void position_integration(Particula *p, Particula *dpdt1, float dt, int N) {
