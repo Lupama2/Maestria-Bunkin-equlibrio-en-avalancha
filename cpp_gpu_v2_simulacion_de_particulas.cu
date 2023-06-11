@@ -37,12 +37,12 @@ void condiciones_iniciales(Particula *p0, int N) {
 
   for (int i = 0; i < N; ++i){
     float r0 = R0 * (rand() / (float)RAND_MAX);
-    float tita_r0 = (rand() / (float)RAND_MAX);
+    float tita_r0 = 2*pi*(rand() / (float)RAND_MAX);
     p0[i].x = r0 * cos(tita_r0); // = rx0_vec[i]
     p0[i].y = r0 * sin(tita_r0); // = ry0_vec[i] 
 
     float v0 = (rand() / (float)RAND_MAX); //Por ahora va a ser random uniforme. TO-DO
-    float tita_v0 = (rand() / (float)RAND_MAX);
+    float tita_v0 = 2*pi*(rand() / (float)RAND_MAX);
     p0[i].vx = v0 * cos(tita_v0); // = vx0_vec[i]
     p0[i].vy = v0 * sin(tita_v0); // = vy0_vec[i]
   }
