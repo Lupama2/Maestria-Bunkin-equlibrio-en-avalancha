@@ -42,7 +42,7 @@ int main(const int argc, const char** argv) {
     int N = 1000; 
     float dt =  1e-5; //1e-8;
     int n_pasos = 10;
-    int guardo_cada = 1;  // Valor deseado para guardo_cada
+    int guardo_cada = 10;  // Valor deseado para guardo_cada
 
     if (argc > 1){
         N = atoi(argv[1]);
