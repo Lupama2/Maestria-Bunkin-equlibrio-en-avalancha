@@ -35,8 +35,16 @@
 #ejecutar binario con sus respectivos argumentos
 g++ -O3 cpp_cpu_simulacion_de_particulas.cpp cpp_cpu_funciones.cpp -std=c++11 -o  cpp_cpu_simulacion_de_particulas
 
+#Imprimo características de la CPU
+lscpu
+
 #ejecuto
 #1 sola vez
 # ./cpp_cpu_simulacion_de_particulas
 #varias veces
 for N in 2 5 10 20 50 100 200 500 1000 2000 5000 10000 20000; do ./cpp_cpu_simulacion_de_particulas $N 1E-5 100 100; done
+
+#Para hacer profiling
+# g++ -pg -O3 cpp_cpu_simulacion_de_particulas.cpp cpp_cpu_funciones.cpp -std=c++11 -o  cpp_cpu_simulacion_de_particulas
+# ./cpp_cpu_simulacion_de_particulas
+# gprof cpp_cpu_simulacion_de_particulas gmon.out > profiling_cpp_cpu.txt
