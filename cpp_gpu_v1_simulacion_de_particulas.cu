@@ -12,6 +12,9 @@ En esta versión se paralelizan las operaciones de cálculo de fuerzas, integrac
 #include <stdlib.h>
 #include "timer.h"
 
+#include <cuda_runtime.h>
+
+
 using namespace std;
 
 #define BLOCK_SIZE 256
@@ -126,6 +129,27 @@ void correccion_Temperatura(Particula *p, int N) {
 
 int main(const int argc, const char** argv) {
 
+
+  /***************************************
+  CARACTERÍSTICAS DE LA GPU
+  ****************************************/
+  int deviceCount;
+  cudaGetDeviceCount(&deviceCount);
+
+  for (int device = 0; device < deviceCount; ++device)
+  {
+      cudaDeviceProp deviceProp;
+      cudaGetDeviceProperties(&deviceProp, device);
+
+      std::cout << "Device " << device << ":\n";
+      std::cout << "  Name: " << deviceProp.name << "\n";
+      std::cout << "  Compute capability: " << deviceProp.major << "." << deviceProp.minor << "\n";
+      std::cout << "  Total global memory: " << deviceProp.totalGlobalMem << "\n";
+      std::cout << "  Multiprocessor count: " << deviceProp.multiProcessorCount << "\n";
+      // ... y muchos otros campos disponibles
+  }
+
+
   /***************************************
   CONDICIONES INICIALES Y DE INTEGRACIÓN
   ****************************************/
@@ -134,10 +158,10 @@ int main(const int argc, const char** argv) {
   const float T0_dim = 1000; // [K]
 
   //Nro de partículas
-  int N = 100;
-  float dt = 1e-3; //1e-8;; // time step
+  int N = 1000;
+  float dt = 1e-5; //1e-8;; // time step
   int n_pasos = 10;
-  int guardo_cada = 100;  // Valor deseado para guardo_cada
+  int guardo_cada = 10;  // Valor deseado para guardo_cada
   if (argc > 1){
     N = atoi(argv[1]);
     dt = atof(argv[2]);
@@ -148,8 +172,6 @@ int main(const int argc, const char** argv) {
   cout << "dt = " << dt << endl;
   cout << "n_pasos = " << n_pasos << endl;
   cout << "guardo_cada = " << guardo_cada << endl;
-
-
 
 
   /***************************************
