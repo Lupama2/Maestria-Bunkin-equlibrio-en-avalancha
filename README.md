@@ -1,8 +1,6 @@
 # Maestria-Bunkin-equlibrio-en-avalancha
  Análisis del equilibrio de un gas de electrones en un recinto circular
 
-5NElCjSEafnjsaxT9r5C//
-
 ## Introducción
  El objetivo del proyecto es simular la dinámica de un gas de N electrones contenido en un recinto circular de radio $R_0$. Para ello se cuenta con las ecuaciones de movimiento dadas por la ley de Newton y la ley de Lorentz, adimensionalizadas. Como condición inicial se parte de N electrones en posiciones aleatorias y velocidades dadas por una distribución de Maxwell-Boltzmann a temperatura $T_0 = 1000$ K.
 
