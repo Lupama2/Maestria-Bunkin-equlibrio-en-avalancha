@@ -13,7 +13,7 @@ Al calcular la fuerza, cada hilo carga una parte de la memoria a la shared memor
 #include <stdio.h>
 #include <stdlib.h>
 #include "timer.h"
-#include <cuda_runtime.h>
+// #include <cuda_runtime.h>
 
 using namespace std;
 
@@ -48,6 +48,7 @@ void condiciones_iniciales(Particula *p0, int N) {
   }
 }
 
+
 __global__
 void bodyForce(Particula *p, Particula *dpdt, float dt, int N, float alpha) {
   int i = blockDim.x * blockIdx.x + threadIdx.x;
@@ -55,14 +56,15 @@ void bodyForce(Particula *p, Particula *dpdt, float dt, int N, float alpha) {
     float Fx = 0.0f; float Fy = 0.0f;
 
     for (int tile = 0; tile < gridDim.x; tile++) {
-      /*
-      Aquí cada hilo carga una parte a la shared memory. Cooperan para copiar!
-      */
       __shared__ Particula shared_p[BLOCK_SIZE];
+      // if (tile * blockDim.x + threadIdx.x < N) {
+      //   shared_p[threadIdx.x] = p[tile * blockDim.x + threadIdx.x];
+      // }
       shared_p[threadIdx.x] = p[tile * blockDim.x + threadIdx.x];
       __syncthreads();
 
-      for (int j = 0; j < N; j++) {
+      int n = min(BLOCK_SIZE, N - tile * BLOCK_SIZE); // número de partículas en este bloque
+      for (int j = 0; j < n; j++) {
         float dx = p[i].x - shared_p[j].x;
         float dy = p[i].y - shared_p[j].y;
         float r2 = dx*dx + dy*dy + SOFTENING;
@@ -71,14 +73,13 @@ void bodyForce(Particula *p, Particula *dpdt, float dt, int N, float alpha) {
 
         Fx += alpha * dx * inv_r3; Fy += alpha * dy * inv_r3;
       }
+      __syncthreads();
     }
-    //Asigno las derivadas
+
     dpdt[i].x = p[i].vx; dpdt[i].y = p[i].vy;
     dpdt[i].vx = Fx; dpdt[i].vy = Fy;
-        
   }
 }
-
 
 __global__
 void position_integration(Particula *p, Particula *dpdt1, float dt, int N) {
@@ -141,21 +142,21 @@ int main(const int argc, const char** argv) {
   /***************************************
   CARACTERÍSTICAS DE LA GPU
   ****************************************/
-  int deviceCount;
-  cudaGetDeviceCount(&deviceCount);
+  // int deviceCount;
+  // cudaGetDeviceCount(&deviceCount);
 
-  for (int device = 0; device < deviceCount; ++device)
-  {
-      cudaDeviceProp deviceProp;
-      cudaGetDeviceProperties(&deviceProp, device);
+  // for (int device = 0; device < deviceCount; ++device)
+  // {
+  //     cudaDeviceProp deviceProp;
+  //     cudaGetDeviceProperties(&deviceProp, device);
 
-      std::cout << "Device " << device << ":\n";
-      std::cout << "  Name: " << deviceProp.name << "\n";
-      std::cout << "  Compute capability: " << deviceProp.major << "." << deviceProp.minor << "\n";
-      std::cout << "  Total global memory: " << deviceProp.totalGlobalMem << "\n";
-      std::cout << "  Multiprocessor count: " << deviceProp.multiProcessorCount << "\n";
-      // ... y muchos otros campos disponibles
-  }
+  //     std::cout << "Device " << device << ":\n";
+  //     std::cout << "  Name: " << deviceProp.name << "\n";
+  //     std::cout << "  Compute capability: " << deviceProp.major << "." << deviceProp.minor << "\n";
+  //     std::cout << "  Total global memory: " << deviceProp.totalGlobalMem << "\n";
+  //     std::cout << "  Multiprocessor count: " << deviceProp.multiProcessorCount << "\n";
+  //     // ... y muchos otros campos disponibles
+  // }
 
 
 
