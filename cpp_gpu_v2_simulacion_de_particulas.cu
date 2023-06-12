@@ -57,9 +57,6 @@ void bodyForce(Particula *p, Particula *dpdt, float dt, int N, float alpha) {
 
     for (int tile = 0; tile < gridDim.x; tile++) {
       __shared__ Particula shared_p[BLOCK_SIZE];
-      // if (tile * blockDim.x + threadIdx.x < N) {
-      //   shared_p[threadIdx.x] = p[tile * blockDim.x + threadIdx.x];
-      // }
       shared_p[threadIdx.x] = p[tile * blockDim.x + threadIdx.x];
       __syncthreads();
 
