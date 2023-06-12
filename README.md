@@ -1,6 +1,10 @@
 # Maestria-Bunkin-equlibrio-en-avalancha
  Análisis del equilibrio de un gas de electrones en un recinto circular
 
+El código también se encuentra disponible en el repositorio de GitHub
+https://github.com/Lupama2/Maestria-Bunkin-equlibrio-en-avalancha.git
+
+
 ## Introducción
  El objetivo del proyecto es simular la dinámica de un gas de N electrones contenido en un recinto circular de radio $R_0$. Para ello se cuenta con las ecuaciones de movimiento dadas por la ley de Newton y la ley de Lorentz, adimensionalizadas. Como condición inicial se parte de N electrones en posiciones aleatorias y velocidades dadas por una distribución de Maxwell-Boltzmann a temperatura $T_0 = 1000$ K.
 
@@ -28,6 +32,7 @@ Existen 5 versiones del código, 2 de las cuales son en serie y 3 en paralelo.
 | Versión 3 | C++      | job_cpp_cpu    | En serie                                   |
 | Versión 4 | CUDA C++ | job_cpp_gpu_v1 | En paralelo (kernels)                      |
 | Versión 5 | CUDA C++ | job_cpp_gpu_v2 | En paralelo (kernels + shared memory)      |
+
 Existe un 6to job llamado job_cpp_gpu_evolucion que permite calcular la evolución hasta el equilibrio y guardar cada pocos pasos de tiempo empleando la versión 4. Para ejecutar cada una de las versiones, simplemente hacer
 ~~~
 qsub job_version
