@@ -36,7 +36,7 @@ qsub job_version
 ~~~
 en el cluster y se estará compilando el código correspondiente y ejecutando el código
 
-Se puede graficar la solución en graficos_evolucion y el rendimiendo de cada código respecto a los demás con graficos_rendimiento. En este último es importante haber ejecutado todos los jobs para que se grafique correctamente.
+Se puede graficar la solución en graficos_evolucion y el rendimiendo de cada código respecto a los demás con graficos_rendimiento. En este último es importante haber ejecutado todos los jobs para que se grafique correctamente y previamente haber eliminado todos los datos en la carpeta "resultados". Una vez ejecutados los códigos, enviar a las carpetas evolucion para analizar graficos_evolucion o carpeta rendimiento para analizar graficos_rendimiento
 
 
 
