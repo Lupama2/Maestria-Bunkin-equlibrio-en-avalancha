@@ -41,5 +41,5 @@ en el cluster y se estará compilando el código correspondiente y ejecutando el
 
 Se puede graficar la solución en graficos_evolucion y el rendimiendo de cada código respecto a los demás con graficos_rendimiento. En este último es importante haber ejecutado todos los jobs para que se grafique correctamente y previamente haber eliminado todos los datos en la carpeta "resultados". Una vez ejecutados los códigos, enviar a las carpetas evolucion para analizar graficos_evolucion o carpeta rendimiento para analizar graficos_rendimiento
 
-
+Nota: puede haber algún error asociado a la carga del módulo cuda/10.0.130. Si está trabajando en el cluster, redirigirse a pablo.chehade/IntroCUDA/Final/ . Por alguna razón que desconozco, el módulo mencionado sí está disponible en esa carpeta pero no en la carpeta pablo.chehade/ICNPG2023_Chehade
 
