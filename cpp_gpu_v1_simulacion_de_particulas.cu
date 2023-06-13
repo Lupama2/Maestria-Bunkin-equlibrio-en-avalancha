@@ -12,6 +12,9 @@ En esta versión se paralelizan las operaciones de cálculo de fuerzas, integrac
 #include <stdlib.h>
 #include "timer.h"
 
+#include <cuda_runtime.h>
+
+
 using namespace std;
 
 #define BLOCK_SIZE 256
@@ -34,12 +37,12 @@ void condiciones_iniciales(Particula *p0, int N) {
 
   for (int i = 0; i < N; ++i){
     float r0 = R0 * (rand() / (float)RAND_MAX);
-    float tita_r0 = (rand() / (float)RAND_MAX);
+    float tita_r0 = 2*pi*(rand() / (float)RAND_MAX);
     p0[i].x = r0 * cos(tita_r0); // = rx0_vec[i]
     p0[i].y = r0 * sin(tita_r0); // = ry0_vec[i] 
 
     float v0 = (rand() / (float)RAND_MAX); //Por ahora va a ser random uniforme. TO-DO
-    float tita_v0 = (rand() / (float)RAND_MAX);
+    float tita_v0 = 2*pi*(rand() / (float)RAND_MAX);
     p0[i].vx = v0 * cos(tita_v0); // = vx0_vec[i]
     p0[i].vy = v0 * sin(tita_v0); // = vy0_vec[i]
   }
@@ -126,23 +129,49 @@ void correccion_Temperatura(Particula *p, int N) {
 
 int main(const int argc, const char** argv) {
 
+
   /***************************************
-  CONDICIONES INICIALES
+  CARACTERÍSTICAS DE LA GPU
+  ****************************************/
+  int deviceCount;
+  cudaGetDeviceCount(&deviceCount);
+
+  for (int device = 0; device < deviceCount; ++device)
+  {
+      cudaDeviceProp deviceProp;
+      cudaGetDeviceProperties(&deviceProp, device);
+
+      std::cout << "Device " << device << ":\n";
+      std::cout << "  Name: " << deviceProp.name << "\n";
+      std::cout << "  Compute capability: " << deviceProp.major << "." << deviceProp.minor << "\n";
+      std::cout << "  Total global memory: " << deviceProp.totalGlobalMem << "\n";
+      std::cout << "  Multiprocessor count: " << deviceProp.multiProcessorCount << "\n";
+      // ... y muchos otros campos disponibles
+  }
+
+
+  /***************************************
+  CONDICIONES INICIALES Y DE INTEGRACIÓN
   ****************************************/
   // Radio del círculo y velocidad inicial de la partícula
   const float R0_dim = 1e-6; // [cm]
   const float T0_dim = 1000; // [K]
 
   //Nro de partículas
-  int N = 100000;
-  if (argc > 1) N = atoi(argv[1]);
+  int N = 1000;
+  float dt = 1e-5; //1e-8;; // time step
+  int n_pasos = 10;
+  int guardo_cada = 10;  // Valor deseado para guardo_cada
+  if (argc > 1){
+    N = atoi(argv[1]);
+    dt = atof(argv[2]);
+    n_pasos = atoi(argv[3]);
+    guardo_cada = atoi(argv[4]);};
 
-  /***************************************
-  CONDICIONES DE INTEGRACIÓN
-  ****************************************/
-  const float dt = 1e-3; //1e-8;; // time step
-  const int n_pasos = 10;
-  int guardo_cada = 100;  // Valor deseado para guardo_cada
+  cout << "N = " << N << " particulas" << endl;
+  cout << "dt = " << dt << endl;
+  cout << "n_pasos = " << n_pasos << endl;
+  cout << "guardo_cada = " << guardo_cada << endl;
 
 
   /***************************************
@@ -166,7 +195,7 @@ int main(const int argc, const char** argv) {
   ofstream vel_x_file("resultados/cpp_gpu_v1_vel_x.txt");
   ofstream vel_y_file("resultados/cpp_gpu_v1_vel_y.txt");
   ofstream t_file("resultados/cpp_gpu_v1_t.txt");
-  ofstream t_computo_file("resultados/cpp_cpu_t_computo.txt", ios_base::app);
+  ofstream t_computo_file("resultados/cpp_gpu_v1_t_computo.txt", ios_base::app);
 
   cout << "Archivos creados correctamente" << endl;
 
@@ -203,6 +232,8 @@ int main(const int argc, const char** argv) {
   /***************************************
   LOOP TEMPORAL
   ****************************************/
+  cudaMemcpy(d_buf, buf, bytes, cudaMemcpyHostToDevice);
+
   for (int iter = 1; iter <= n_pasos; iter++) {
     // En cada loop de tiempo se copian los datos a la GPU, se paraleliza en GPU y luego se vuelven a copiar los datos a CPU  
     StartTimer();
@@ -211,7 +242,7 @@ int main(const int argc, const char** argv) {
     MÉTODO DE VERLET
     ****************************************/
 
-    cudaMemcpy(d_buf, buf, bytes, cudaMemcpyHostToDevice); //Esto se puede poner afuera del Loop. TO-DO
+  
     
     //1. Calculo las fuerzas
     bodyForce<<<nBlocks, BLOCK_SIZE>>>(d_p, d_dpdt1, dt, N, alpha);
@@ -267,11 +298,11 @@ int main(const int argc, const char** argv) {
     const float t_computo_paso = GetTimer() / 1000.0;
     //No tiro ninguna iteración
     t_computo_total += t_computo_paso;
-    if (i == 0){
+    if (iter == 1){
         t_computo_file << N << " ";
     }
     t_computo_file << t_computo_paso << " ";
-    if (i == n_pasos - 1){
+    if (iter == n_pasos){
         t_computo_file << "\n";
     }
 

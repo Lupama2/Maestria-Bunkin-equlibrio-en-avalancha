@@ -30,14 +30,35 @@ const float K = 1.380649e-23 * (1 / 1e-7); // constante de Boltzmann [ergio/K], 
 const float R0_dim = 1e-6; // [cm]
 const float T0_dim = 1000; // [K]
 
-// Nro de partículas
-const int N = 100; 
+
 
 // srand(time(nullptr)); // Inicializar la semilla aleatoria con el tiempo actual
 
 
 
-int main() {
+int main(const int argc, const char** argv) {
+
+    // Nro de partículas
+    int N = 1000; 
+    float dt =  1e-5; //1e-8;
+    int n_pasos = 10;
+    int guardo_cada = 10;  // Valor deseado para guardo_cada
+
+    if (argc > 1){
+        N = atoi(argv[1]);
+        dt = atof(argv[2]);
+        n_pasos = atoi(argv[3]);
+        guardo_cada = atoi(argv[4]);};
+
+    cout << "N = " << N << " particulas" << endl;
+    cout << "dt = " << dt << endl;
+    cout << "n_pasos = " << n_pasos << endl;
+    cout << "guardo_cada = " << guardo_cada << endl;
+    
+
+
+
+
     // Cálculo de las constantes adimensionales
     float v0_dim = sqrt(2 * K * T0_dim / m);
     float alpha = pow(e, 2) / (m * R0_dim * pow(v0_dim, 2));
@@ -58,9 +79,6 @@ int main() {
     condiciones_iniciales(y, N);
 
     float t = 0;
-    float dt =  1e-5; //1e-8;
-    int n_pasos = 10;
-    int guardo_cada = 1;  // Valor deseado para guardo_cada
 
     ofstream pos_x_file("resultados/cpp_cpu_pos_x.txt");
     ofstream pos_y_file("resultados/cpp_cpu_pos_y.txt");
